@@ -22,11 +22,22 @@ class Verifier
      *
      * @return bool
      */
-    public function isValid($message)
+    public function isSigned($message)
     {
         $verification = new Verification($message, $this->keyStore);
 
-        return $verification->isValid();
+        return $verification->isSigned();
+    }
+
+    /**
+     * @param RequestInterface $message
+     * @return bool
+     */
+    public function isAuthorized($message)
+    {
+        $verification = new Verification($message, $this->keyStore);
+
+        return $verification->isAuthorized();
     }
 
     /**

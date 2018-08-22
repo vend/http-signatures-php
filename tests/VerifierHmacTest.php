@@ -121,6 +121,32 @@ class VerifierHmacTest extends TestCase
         $this->assertFalse($this->verifier->isValidDigest($message));
     }
 
+    private function setUpValidMessageNoHeaders()
+    {
+        $signatureHeaderNoHeaders = sprintf(
+            'keyId="%s",algorithm="%s",signature="%s"',
+            'pda',
+            'hmac-sha256',
+            'SNERdFCcPF40c5kw0zbmSXn3Zv2KZWhiuHSijhZs/4k='
+        );
+
+        $this->validMessageNoHeaders = new Request('GET', '/path?query=123', [
+            'Date' => 'today',
+            'Signature' => $signatureHeaderNoHeaders,
+            'NoSignatureHeaders' => 'true',
+        ]);
+    }
+
+    public function testVerifyValidMessage()
+    {
+        $this->assertTrue($this->verifier->isValid($this->validMessage));
+    }
+
+    public function testVerifyValidMessageNoHeaders()
+    {
+        $this->assertTrue($this->verifier->isValid($this->validMessageNoHeaders));
+    }
+
     public function testVerifyValidMessageAuthorizationHeader()
     {
         $message = $this->validMessage->withHeader(

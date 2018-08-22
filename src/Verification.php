@@ -13,7 +13,10 @@ class Verification
     private $keyStore;
 
     /** @var array */
-    private $_parameters;
+    private $_signatureParameters;
+
+    /** @var array */
+    private $_authorizationParameters;
 
     /**
      * @param RequestInterface  $message
@@ -28,9 +31,17 @@ class Verification
     /**
      * @return bool
      */
-    public function isValid()
+    public function isSigned()
     {
         return $this->hasSignatureHeader() && $this->signatureMatches();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAuthorized()
+    {
+        return $this->hasAuthorizationHeader() && $this->authorizationMatches();
     }
 
     /**
@@ -81,11 +92,38 @@ class Verification
     }
 
     /**
+     * @return bool
+     */
+    private function authorizationMatches()
+    {
+        try {
+            $random = random_bytes(32);
+            return
+              hash_hmac('sha256', $this->expectedAuthorizationBase64(), $random, true) ===
+              hash_hmac('sha256', $this->providedAuthorizationBase64(), $random, true);
+        } catch (SignatureParseException $e) {
+            return false;
+        } catch (KeyStoreException $e) {
+            return false;
+        } catch (SignedHeaderNotPresentException $e) {
+            return false;
+        }
+    }
+
+    /**
      * @return string
      */
     private function expectedSignatureBase64()
     {
         return base64_encode($this->expectedSignature()->string());
+    }
+
+    /**
+     * @return string
+     */
+    private function expectedAuthorizationBase64()
+    {
+        return base64_encode($this->expectedAuthorization()->string());
     }
 
     /**
@@ -95,9 +133,22 @@ class Verification
     {
         return new Signature(
             $this->message,
-            $this->key(),
-            $this->algorithm(),
-            $this->headerList()
+            $this->signatureKey(),
+            $this->signatureAlgorithm(),
+            $this->signatureHeaderList()
+        );
+    }
+
+    /**
+     * @return Signature
+     */
+    private function expectedAuthorization()
+    {
+        return new Signature(
+            $this->message,
+            $this->authorizationKey(),
+            $this->authorizationAlgorithm(),
+            $this->authorizationHeaderList()
         );
     }
 
@@ -106,31 +157,73 @@ class Verification
      */
     private function providedSignatureBase64()
     {
-        return $this->parameter('signature');
+        return $this->signatureHeaderParameter('signature');
+    }
+
+    /**
+     * @return string
+     *
+     * @throws Exception
+     */
+    private function providedAuthorizationBase64()
+    {
+        return $this->authorizationHeaderParameter('signature');
+    }
+
+    /**
+     * @return Key
+     *
+     * @throws Exception
+     */
+    private function signatureKey()
+    {
+        return $this->keyStore->fetch($this->signatureHeaderParameter('keyId'));
     }
 
     /**
      * @return Key
      */
-    private function key()
+    private function authorizationKey()
     {
-        return $this->keyStore->fetch($this->parameter('keyId'));
+        return $this->keyStore->fetch($this->authorizationHeaderParameter('keyId'));
     }
 
     /**
-     * @return HmacAlgorithm
+     * @return Algorithm
+     *
+     * @throws Exception
      */
-    private function algorithm()
+    private function signatureAlgorithm()
     {
-        return Algorithm::create($this->parameter('algorithm'));
+        return Algorithm::create($this->signatureHeaderParameter('algorithm'));
+    }
+
+    /**
+     * @return Algorithm
+     *
+     * @throws Exception
+     */
+    private function authorizationAlgorithm()
+    {
+        return Algorithm::create($this->authorizationHeaderParameter('algorithm'));
     }
 
     /**
      * @return HeaderList
      */
-    private function headerList()
+    private function signatureHeaderList()
     {
-        return HeaderList::fromString($this->parameter('headers'));
+        return HeaderList::fromString($this->signatureHeaderParameter('headers'));
+    }
+
+    /**
+     * @return HeaderList
+     *
+     * @throws Exception
+     */
+    private function authorizationHeaderList()
+    {
+        return HeaderList::fromString($this->authorizationHeaderParameter('headers'));
     }
 
     /**
@@ -140,7 +233,24 @@ class Verification
      *
      * @throws Exception
      */
-    private function parameter($name)
+    private function signatureHeaderParameter($name)
+    {
+        $signatureHeaderParameters = $this->signatureHeaderParameters();
+        if (!isset($signatureHeaderParameters[$name])) {
+            throw new Exception("Signature parameters does not contain '$name'");
+        }
+
+        return $signatureHeaderParameters[$name];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string
+     *
+     * @throws Exception
+     */
+    private function authorizationHeaderParameter($name)
     {
         $parameters = $this->parameters();
         if (!isset($parameters[$name])) {
@@ -150,20 +260,35 @@ class Verification
             throw new Exception("Signature parameters does not contain '$name'");
         }
 
-        return $parameters[$name];
+        return $authorizationHeaderParameters[$name];
     }
 
     /**
      * @return array
      */
-    private function parameters()
+    private function signatureHeaderParameters()
     {
-        if (!isset($this->_parameters)) {
+        if (!isset($this->_signatureParameters)) {
             $parser = new SignatureParametersParser($this->signatureHeader());
-            $this->_parameters = $parser->parse();
+            $this->_signatureParameters = $parser->parse();
         }
 
-        return $this->_parameters;
+        return $this->_signatureParameters;
+    }
+
+    /**
+     * @return array
+     *
+     * @throws Exception
+     */
+    private function authorizationHeaderParameters()
+    {
+        if (!isset($this->_authorizationParameters)) {
+            $parser = new SignatureParametersParser($this->authorizationHeader());
+            $this->_authorizationParameters = $parser->parse();
+        }
+
+        return $this->_authorizationParameters;
     }
 
     /**
@@ -171,7 +296,15 @@ class Verification
      */
     private function hasSignatureHeader()
     {
-        return $this->message->hasHeader('Signature') || $this->message->hasHeader('Authorization');
+        return $this->message->hasHeader('Signature');
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasAuthorizationHeader()
+    {
+        return $this->message->hasHeader('Authorization');
     }
 
     /**
@@ -183,10 +316,22 @@ class Verification
     {
         if ($signature = $this->fetchHeader('Signature')) {
             return $signature;
-        } elseif ($authorization = $this->fetchHeader('Authorization')) {
+        } else {
+            throw new Exception('HTTP message has no Signature header');
+        }
+    }
+
+    /**
+     * @return string
+     *
+     * @throws Exception
+     */
+    private function authorizationHeader()
+    {
+        if ($authorization = $this->fetchHeader('Authorization')) {
             return substr($authorization, strlen('Signature '));
         } else {
-            throw new Exception('HTTP message has no Signature or Authorization header');
+            throw new Exception('HTTP message has no Authorization header');
         }
     }
 
