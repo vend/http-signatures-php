@@ -30,9 +30,11 @@ class HmacContextTest extends TestCase
 
     public function testSignerNoDigestAction()
     {
-        $message = new Request('GET', '/path?query=123', ['date' => 'today', 'accept' => 'llamas']);
-        $message = $this->noDigestContext->signer()->sign($message);
-
+        $authorizeHeaderString = 'Bearer abc456';
+        $message = new Request(
+          'GET', '/path?query=123',
+          ['date' => 'today', 'accept' => 'llamas', 'Authorize' => $authorizeHeaderString]);
+        $message = $this->context->signer()->sign($message);
         $expectedString = implode(',', [
             'keyId="pda"',
             'algorithm="hmac-sha256"',
@@ -44,6 +46,11 @@ class HmacContextTest extends TestCase
             $expectedString,
             $message->getHeader('Signature')[0]
         );
+        $this->assertEquals(
+            $authorizeHeaderString,
+            $message->getHeader('Authorize')[0]
+        );
+        $this->assertEquals(1, count($message->getHeader('Authorize')));
     }
 
     public function testAuthorizer()
