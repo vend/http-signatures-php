@@ -202,7 +202,6 @@ class HmacContextTest extends TestCase
         );
     }
 
-
     public function testSignatureVerifier()
     {
         $message = $this->noDigestContext->signer()->sign(new Request('GET', '/path?query=123', [
