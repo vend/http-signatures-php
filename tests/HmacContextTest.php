@@ -69,6 +69,10 @@ class HmacContextTest extends TestCase
             'Signature '.$expectedString,
             $message->getHeader('Authorization')[0]
         );
+
+        $this->assertFalse(
+            $message->hasHeader('Signature')
+        );
     }
 
     public function testSignerAddDigestToHeadersList()
@@ -97,9 +101,8 @@ class HmacContextTest extends TestCase
             $message->getHeader('Digest')[0]
         );
 
-        $this->assertEquals(
-            'Signature '.$expectedString,
-            $message->getHeader('Authorization')[0]
+        $this->assertFalse(
+            $message->hasHeader('Authorization')
         );
     }
 
@@ -131,9 +134,8 @@ class HmacContextTest extends TestCase
             $message->getHeader('Digest')[0]
         );
 
-        $this->assertEquals(
-            'Signature '.$expectedString,
-            $message->getHeader('Authorization')[0]
+        $this->assertFalse(
+            $message->hasHeader('Authorization')
         );
     }
 
@@ -164,9 +166,8 @@ class HmacContextTest extends TestCase
             $message->getHeader('Digest')[0]
         );
 
-        $this->assertEquals(
-            'Signature '.$expectedString,
-            $message->getHeader('Authorization')[0]
+        $this->assertFalse(
+            $message->hasHeader('Authorization')
         );
     }
 
@@ -196,9 +197,8 @@ class HmacContextTest extends TestCase
             $message->getHeader('Digest')[0]
         );
 
-        $this->assertEquals(
-            'Signature '.$expectedString,
-            $message->getHeader('Authorization')[0]
+        $this->assertFalse(
+            $message->hasHeader('Authorization')
         );
     }
 
