@@ -13,7 +13,7 @@ See also:
 Usage
 ---
 
-Add [99designs/http-signatures][package] to your [composer.json][composer].
+Add [liamdennehy/http-signatures][package] to your [composer.json][composer].
 
 Configure a context with your algorithm, keys, headers to sign.
 This is best placed in an application startup file.
@@ -80,7 +80,7 @@ Pull Requests are welcome.
 [draft03]: http://tools.ietf.org/html/draft-cavage-http-signatures-03
 [Symfony\Component\HttpFoundation\Request]: https://github.com/symfony/HttpFoundation/blob/master/Request.php
 [composer]: https://getcomposer.org/
-[package]: https://packagist.org/packages/99designs/http-signatures
+[package]: https://packagist.org/packages/liamdennehy/http-signatures
 [psr7]: http://www.php-fig.org/psr/psr-7/
 
 ## License

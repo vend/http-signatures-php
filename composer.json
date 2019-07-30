@@ -5,14 +5,13 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Paul Annesley",
-            "email": "paul@99designs.com"
-        },
-        {
             "name": "Liam Dennehy",
             "email": "liam@wiemax.net"
+        },
+        {
+            "name": "Paul Annesley",
+            "email": "paul@99designs.com"
         }
-
     ],
     "autoload": {
         "psr-4": {
