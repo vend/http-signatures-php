@@ -1,13 +1,18 @@
 {
-    "name": "99designs/http-signatures",
+    "name": "liamdennehy/http-signatures",
     "description": "Sign and verify HTTP messages",
-    "keywords": ["http", "https", "signing", "signed", "signature", "hmac"],
+    "keywords": ["http", "https", "signing", "signed", "signature", "hmac", "rsa", "ec"],
     "license": "MIT",
     "authors": [
         {
             "name": "Paul Annesley",
             "email": "paul@99designs.com"
+        },
+        {
+            "name": "Liam Dennehy",
+            "email": "liam@wiemax.net"
         }
+
     ],
     "autoload": {
         "psr-4": {
