@@ -76,6 +76,16 @@ a SHA256 digest to the headers using the ``signWithdigest`` method:
   $context->signer()->signWithDigest($message);
 ```
 
+### Adding a Digest header while signing
+
+Include a ```Digest``` header automatically when signing:
+
+```php
+$context->signer()->signWithDigest($message);
+$message->headers->get('digest');
+// SHA-256=<base64SHA256Digest>
+```
+
 ### Verifying a Signed Message
 
 Most parameters are derived from the Signature in the signed message, so the
@@ -117,6 +127,22 @@ the X.509 PEM format certificates in place of the 'secret':
   ]);
 ```
 
+#### Verifying a message digest
+
+To confirm the body has a valid digest header and the header is a valid digest
+of the message body:
+
+```php
+$context->verifier()->isValidDigest($message); // true or false
+```
+
+An all-in-one validation that the signature includes the digest, and the digest
+is valid for the message body:
+
+
+```php
+$context->verifier()->isValidWithDigest($message); // true or false
+```
 
 ### Symfony compatibility
 

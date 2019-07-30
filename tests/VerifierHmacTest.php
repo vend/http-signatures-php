@@ -39,14 +39,15 @@ class VerifierHmacTest extends \PHPUnit_Framework_TestCase
             'keyId="%s",algorithm="%s",headers="%s",signature="%s"',
             'secret1',
             'hmac-sha256',
-            '(request-target) date',
-            'cS2VvndvReuTLy52Ggi4j6UaDqGm9hMb4z0xJZ6adqU='
+            '(request-target) date digest',
+            'tcniMTUZOzRWCgKmLNAHag0CManFsj25ze9Skpk4q8c='
         );
 
         $this->message = new Request('GET', '/path?query=123', [
             'Date' => self::DATE,
             'Signature' => $signatureHeader,
-        ]);
+            'Digest' => 'SHA-256=h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI=',
+        ], 'Some body (though any body in a GET should be ignored)');
     }
 
     public function testVerifyValidHmacMessage()
@@ -54,7 +55,44 @@ class VerifierHmacTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->verifier->isValid($this->message));
     }
 
-    public function testVerifyValidHmacMessageAuthorizationHeader()
+    public function testVerifyValidDigest()
+    {
+        $this->assertTrue($this->verifier->isValidDigest($this->message));
+    }
+
+    public function testVerifyValidWithDigest()
+    {
+        $this->assertTrue($this->verifier->isValidWithDigest($this->message));
+    }
+
+    public function testRejectBadDigest()
+    {
+        $message = $this->message->withoutHeader('Digest')
+          ->withHeader('Digest', 'SHA-256=xxx');
+        $this->assertFalse($this->verifier->isValidDigest($message));
+    }
+
+    /**
+     * @expectedException \HttpSignatures\DigestException
+     */
+    public function testRejectBadDigestName()
+    {
+        $message = $this->message->withoutHeader('Digest')
+          ->withHeader('Digest', 'SHA-255=xxx');
+        $this->assertFalse($this->verifier->isValidDigest($message));
+    }
+
+    /**
+     * @expectedException \HttpSignatures\DigestException
+     */
+    public function testRejectBadDigestLine()
+    {
+        $message = $this->message->withoutHeader('Digest')
+          ->withHeader('Digest', 'h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI=');
+        $this->assertFalse($this->verifier->isValidDigest($message));
+    }
+
+    public function testVerifyValidMessageAuthorizationHeader()
     {
         $message = $this->message->withHeader('Authorization', "Signature {$this->message->getHeader('Signature')[0]}");
         $message = $message->withoutHeader('Signature');

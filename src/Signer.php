@@ -48,9 +48,10 @@ class Signer
      */
     public function signWithDigest($message)
     {
-        $message = $this->addDigest($message);
+        $bodyDigest = new BodyDigest();
+        $this->headerList = $bodyDigest->putDigestInHeaderList($this->headerList);
 
-        return $this->sign($message);
+        return $this->sign($bodyDigest->setDigestHeader($message));
     }
 
     /**
@@ -58,19 +59,6 @@ class Signer
      *
      * @return RequestInterface
      */
-    private function addDigest($message)
-    {
-        if (!array_search('digest', $this->headerList->names)) {
-            $this->headerList->names[] = 'digest';
-        }
-        $message = $message->withoutHeader('Digest')
-            ->withHeader(
-                'Digest',
-                'SHA-256='.base64_encode(hash('sha256', $message->getBody(), true))
-            );
-
-        return $message;
-    }
 
     /**
      * @param RequestInterface $message
