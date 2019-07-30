@@ -117,4 +117,9 @@ class Context
     {
         $this->keyStore = $keyStore;
     }
+
+    private function algorithm()
+    {
+        return $this->algorithm;
+    }
 }

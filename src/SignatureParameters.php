@@ -32,7 +32,7 @@ class SignatureParameters
     private function parameterComponents()
     {
         $components = [];
-        $components[] = sprintf('keyId="%s"', $this->key->id);
+        $components[] = sprintf('keyId="%s"', $this->key->getId());
         $components[] = sprintf('algorithm="%s"', $this->algorithm->name());
         if ($this->headerList->headerListSpecified()) {
             $components[] = sprintf('headers="%s"', $this->headerList->string());
