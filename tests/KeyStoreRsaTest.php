@@ -5,8 +5,9 @@ namespace HttpSignatures\tests;
 use HttpSignatures\KeyStore;
 use HttpSignatures\Key;
 use HttpSignatures\Tests\TestKeys;
+use PHPUnit\Framework\TestCase;
 
-class KeyStoreRsaTest extends \PHPUnit_Framework_TestCase
+class KeyStoreRsaTest extends TestCase
 {
     public function setUp()
     {

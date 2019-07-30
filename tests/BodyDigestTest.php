@@ -5,8 +5,9 @@ namespace HttpSignatures\tests;
 use GuzzleHttp\Psr7\Request;
 use HttpSignatures\BodyDigest;
 use HttpSignatures\Context;
+use PHPUnit\Framework\TestCase;
 
-class BodyDigestTest extends \PHPUnit_Framework_TestCase
+class BodyDigestTest extends TestCase
 {
     private $context;
 

@@ -7,8 +7,9 @@ use HttpSignatures\HmacAlgorithm;
 use HttpSignatures\RsaAlgorithm;
 use HttpSignatures\Key;
 use HttpSignatures\SignatureParameters;
+use PHPUnit\Framework\TestCase;
 
-class SignatureParametersTest extends \PHPUnit_Framework_TestCase
+class SignatureParametersTest extends TestCase
 {
     public function testHmacToString()
     {

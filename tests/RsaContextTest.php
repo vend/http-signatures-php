@@ -5,8 +5,9 @@ namespace HttpSignatures\tests;
 use GuzzleHttp\Psr7\Request;
 use HttpSignatures\Context;
 use HttpSignatures\Tests\TestKeys;
+use PHPUnit\Framework\TestCase;
 
-class RsaContextTest extends \PHPUnit_Framework_TestCase
+class RsaContextTest extends TestCase
 {
     private $context;
 

@@ -4,8 +4,9 @@ namespace HttpSignatures\tests;
 
 use GuzzleHttp\Psr7\Request;
 use HttpSignatures\Context;
+use PHPUnit\Framework\TestCase;
 
-class HmacContextTest extends \PHPUnit_Framework_TestCase
+class HmacContextTest extends TestCase
 {
     private $context;
 
