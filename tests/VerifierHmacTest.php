@@ -30,8 +30,8 @@ class VerifierHmacTest extends TestCase
     public function setUp()
     {
         $this->setUpVerifier();
-        $this->setUpValidMessage();
-        $this->setUpValidMessageNoHeaders();
+        $this->setUpValidMessages();
+        $this->setUpValidMessagesNoHeaders();
     }
 
     private function setUpVerifier()
@@ -40,7 +40,7 @@ class VerifierHmacTest extends TestCase
         $this->verifier = new Verifier($keyStore);
     }
 
-    private function setUpValidMessage()
+    private function setUpValidMessages()
     {
         $signatureHeader = sprintf(
             'keyId="%s",algorithm="%s",headers="%s",signature="%s"',
@@ -50,14 +50,20 @@ class VerifierHmacTest extends TestCase
             'tcniMTUZOzRWCgKmLNAHag0CManFsj25ze9Skpk4q8c='
         );
 
-        $this->validMessage = new Request('GET', '/path?query=123', [
+        $this->signedMessage = new Request('GET', '/path?query=123', [
             'Date' => self::DATE,
             'Signature' => $signatureHeader,
             'Digest' => 'SHA-256=h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI=',
         ], 'Some body (though any body in a GET should be ignored)');
+
+        $this->authorizedMessage = new Request('GET', '/path?query=123', [
+            'Date' => self::DATE,
+            'Authorization' => 'Signature '.$signatureHeader,
+            'Digest' => 'SHA-256=h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI=',
+        ], 'Some body (though any body in a GET should be ignored)');
     }
 
-    private function setUpValidMessageNoHeaders()
+    private function setUpValidMessagesNoHeaders()
     {
         $signatureHeaderNoHeaders = sprintf(
             'keyId="%s",algorithm="%s",signature="%s"',
@@ -66,39 +72,53 @@ class VerifierHmacTest extends TestCase
             'SNERdFCcPF40c5kw0zbmSXn3Zv2KZWhiuHSijhZs/4k='
         );
 
-        $this->validMessageNoHeaders = new Request('GET', '/path?query=123', [
+        $this->signedMessageNoHeaders = new Request('GET', '/path?query=123', [
             'Date' => 'today',
             'Signature' => $signatureHeaderNoHeaders,
+            'NoSignatureHeaders' => 'true',
+        ]);
+
+        $this->authorizedMessageNoHeaders = new Request('GET', '/path?query=123', [
+            'Date' => 'today',
+            'Authorization' => 'Signature'.$signatureHeaderNoHeaders,
             'NoSignatureHeaders' => 'true',
         ]);
     }
 
     public function testVerifyValidMessage()
     {
-        $this->assertTrue($this->verifier->isValid($this->validMessage));
+        $this->assertTrue(
+          $this->verifier->isSigned(
+            $this->signedMessage
+          )
+        );
     }
 
     // TODO Follow flow to find out why this breaks
     // public function testVerifyValidMessageNoHeaders()
     // {
-    //     $this->assertTrue($this->verifier->isValid($this->validMessageNoHeaders));
+    //     $this->assertTrue($this->verifier->isSigned($this->validMessageNoHeaders));
     // }
 
     public function testVerifyValidDigest()
     {
-        $this->assertTrue($this->verifier->isValidDigest($this->validMessage));
+        $this->assertTrue($this->verifier->isValidDigest($this->signedMessage));
     }
 
     public function testVerifyValidWithDigest()
     {
-        $this->assertTrue($this->verifier->isValidWithDigest($this->validMessage));
+        $this->assertTrue($this->verifier->isSignedWithDigest($this->signedMessage));
+        $this->assertTrue($this->verifier->isAuthorizedWithDigest($this->authorizedMessage));
     }
 
     public function testRejectBadDigest()
     {
-        $message = $this->validMessage->withoutHeader('Digest')
-          ->withHeader('Digest', 'SHA-256=xxx');
-        $this->assertFalse($this->verifier->isValidDigest($message));
+        // $message = $this->validMessage->withoutHeader('Digest')
+        //   ->withHeader('Digest', 'SHA-256=xxx');
+        $this->assertFalse($this->verifier->isValidDigest(
+          $this->signedMessage->withoutHeader('Digest')
+            ->withHeader('Digest', 'SHA-256=xxx')
+        ));
     }
 
     /**
@@ -106,7 +126,7 @@ class VerifierHmacTest extends TestCase
      */
     public function testRejectBadDigestName()
     {
-        $message = $this->validMessage->withoutHeader('Digest')
+        $message = $this->signedMessage->withoutHeader('Digest')
           ->withHeader('Digest', 'SHA-255=xxx');
         $this->assertFalse($this->verifier->isValidDigest($message));
     }
@@ -116,97 +136,82 @@ class VerifierHmacTest extends TestCase
      */
     public function testRejectBadDigestLine()
     {
-        $message = $this->validMessage->withoutHeader('Digest')
+        $message = $this->signedMessage->withoutHeader('Digest')
           ->withHeader('Digest', 'h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI=');
         $this->assertFalse($this->verifier->isValidDigest($message));
     }
 
-    private function setUpValidMessageNoHeaders()
+    // TODO: Handle no 'headers' parameter
+    // public function testVerifyMessagesNoHeaders()
+    // {
+    //     $this->assertTrue($this->verifier->isSigned($this->signedMessageNoHeaders));
+    //     $this->assertTrue($this->verifier->isAuthorized($this->authorizedMessageNoHeaders));
+    // }
+
+    public function testVerifyAuthorized()
     {
-        $signatureHeaderNoHeaders = sprintf(
-            'keyId="%s",algorithm="%s",signature="%s"',
-            'pda',
-            'hmac-sha256',
-            'SNERdFCcPF40c5kw0zbmSXn3Zv2KZWhiuHSijhZs/4k='
-        );
+        // $message = $this->validMessage->withHeader(
+        //   'Authorization',
+        //   'Signature '.$this->validMessage->getHeader('Signature')[0]
+        //   );
+        // $message = $message->withoutHeader('Signature');
 
-        $this->validMessageNoHeaders = new Request('GET', '/path?query=123', [
-            'Date' => 'today',
-            'Signature' => $signatureHeaderNoHeaders,
-            'NoSignatureHeaders' => 'true',
-        ]);
-    }
-
-    public function testVerifyValidMessage()
-    {
-        $this->assertTrue($this->verifier->isValid($this->validMessage));
-    }
-
-    public function testVerifyValidMessageNoHeaders()
-    {
-        $this->assertTrue($this->verifier->isValid($this->validMessageNoHeaders));
-    }
-
-    public function testVerifyValidMessageAuthorizationHeader()
-    {
-        $message = $this->validMessage->withHeader(
-          'Authorization',
-          'Signature '.$this->validMessage->getHeader('Signature')[0]
-          );
-        $message = $message->withoutHeader('Signature');
-
-        $this->assertTrue($this->verifier->isValid($this->validMessage));
+        $this->assertTrue($this->verifier->isAuthorized($this->authorizedMessage));
     }
 
     public function testRejectTamperedHmacRequestMethod()
     {
-        $message = $this->validMessage->withMethod('POST');
-        $this->assertFalse($this->verifier->isValid($message));
+        // $message = $this->signedMessage->withMethod('POST');
+        $this->assertFalse($this->verifier->isSigned(
+          $this->signedMessage->withMethod('POST')
+        ));
     }
 
     public function testRejectTamperedHmacDate()
     {
-        $message = $this->validMessage->withHeader('Date', self::DATE_DIFFERENT);
-        $this->assertFalse($this->verifier->isValid($message));
+        $message = $this->signedMessage->withHeader('Date', self::DATE_DIFFERENT);
+        $this->assertFalse($this->verifier->isSigned($message));
     }
 
     public function testRejectTamperedHmacSignature()
     {
-        $message = $this->validMessage->withHeader(
+        $message = $this->signedMessage->withHeader(
             'Signature',
-            preg_replace('/signature="/', 'signature="x', $this->validMessage->getHeader('Signature')[0])
+            preg_replace('/signature="/', 'signature="x', $this->signedMessage->getHeader('Signature')[0])
         );
-        $this->assertFalse($this->verifier->isValid($message));
+        $this->assertFalse($this->verifier->isSigned($message));
     }
 
     public function testRejectHmacMessageWithoutSignatureHeader()
     {
-        $message = $this->validMessage->withoutHeader('Signature');
-        $this->assertFalse($this->verifier->isValid($message));
+        $message = $this->signedMessage->withoutHeader('Signature');
+        $this->assertFalse($this->verifier->isSigned($message));
     }
 
     public function testRejectHmacMessageWithGarbageSignatureHeader()
     {
-        $message = $this->validMessage->withHeader('Signature', 'not="a",valid="signature"');
-        $this->assertFalse($this->verifier->isValid($message));
+        $message = $this->signedMessage->withHeader('Signature', 'not="a",valid="signature"');
+        $this->expectException("HttpSignatures\SignatureParseException");
+        $this->verifier->isSigned($message);
     }
 
     public function testRejectHmacMessageWithPartialSignatureHeader()
     {
-        $message = $this->validMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"');
-        $this->assertFalse($this->verifier->isValid($message));
+        $message = $this->signedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"');
+        $this->expectException("HttpSignatures\SignatureParseException");
+        $this->verifier->isSigned($message);
     }
 
     public function testRejectsHmacMessageWithUnknownKeyId()
     {
         $keyStore = new KeyStore(['nope' => 'secret']);
         $verifier = new Verifier($keyStore);
-        $this->assertFalse($verifier->isValid($this->validMessage));
+        $this->assertFalse($verifier->isSigned($this->signedMessage));
     }
 
     public function testRejectsHmacMessageMissingSignedHeaders()
     {
-        $message = $this->validMessage->withoutHeader('Date');
-        $this->assertFalse($this->verifier->isValid($message));
+        $message = $this->signedMessage->withoutHeader('Date');
+        $this->assertFalse($this->verifier->isSigned($message));
     }
 }
