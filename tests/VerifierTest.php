@@ -34,9 +34,9 @@ class VerifierTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->setUpVerifier();
-        $this->setUpValidSignedMessage();
-        $this->setUpValidAuthorizedMessage();
-        $this->setUpValidSignedAndAuthorizedMessage();
+        $this->setUpSignedMessage();
+        $this->setUpAuthorizedMessage();
+        $this->setUpSignedAndAuthorizedMessage();
     }
 
     private function setUpVerifier()
@@ -45,7 +45,7 @@ class VerifierTest extends \PHPUnit_Framework_TestCase
         $this->verifier = new Verifier($keyStore);
     }
 
-    private function setUpValidSignedMessage()
+    private function setUpSignedMessage()
     {
         $signatureHeader = sprintf(
             'keyId="%s",algorithm="%s",headers="%s",signature="%s"',
@@ -62,7 +62,7 @@ class VerifierTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    private function setUpValidAuthorizedMessage()
+    private function setUpAuthorizedMessage()
     {
         $authorizationHeader = sprintf(
             'Signature keyId="%s",algorithm="%s",headers="%s",signature="%s"',
@@ -79,7 +79,7 @@ class VerifierTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    private function setUpValidSignedAndAuthorizedMessage()
+    private function setUpSignedAndAuthorizedMessage()
     {
         $authorizationHeader = sprintf(
             'Signature keyId="%s",algorithm="%s",headers="%s",signature="%s"',
@@ -103,39 +103,42 @@ class VerifierTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    public function testVerifyValidSignedMessage()
+    public function testVerifySignedMessage()
     {
         $this->assertTrue($this->verifier->isSigned($this->signedMessage));
     }
 
-    public function testVerifyValidAuthorizedMessage()
+    public function testVerifyAuthorizedMessage()
     {
         $this->assertTrue($this->verifier->isAuthorized($this->authorizedMessage));
     }
 
-    public function testLegacyIsValid()
-    {
-        error_reporting(error_reporting() & ~E_USER_DEPRECATED);
-        $this->assertTrue($this->verifier->isValid($this->signedAndAuthorizedMessage));
-        error_reporting(error_reporting() | E_USER_DEPRECATED);
-    }
+    // TODO: Decide on compatibility for isValid() for 99designs/http-signatures-php compat
+    // public function testLegacyIsValid()
+    // {
+    //     error_reporting(error_reporting() & ~E_USER_DEPRECATED);
+    //     $this->assertTrue($this->verifier->isValid($this->signedAndAuthorizedMessage));
+    //     error_reporting(error_reporting() | E_USER_DEPRECATED);
+    // }
 
-    /**
-     * @expectedException \PHPUnit_Framework_Error
-     */
-    public function testLegacyIsValidEmitsDeprecatedWarning()
-    {
-        $this->assertTrue($this->verifier->isValid($this->signedAndAuthorizedMessage));
-    }
+    // /**
+    //  * @expectedException \PHPUnit_Framework_Error
+    //  */
+    // public function testLegacyIsValidEmitsDeprecatedWarning()
+    // {
+    //     $this->assertTrue($this->verifier->isValid($this->signedAndAuthorizedMessage));
+    // }
 
     public function testRejectOnlySignatureHeaderAsAuthorized()
     {
-        $this->assertFalse($this->verifier->isAuthorized($this->signedMessage));
+        $this->expectException("HttpSignatures\SignatureParseException");
+        $this->verifier->isAuthorized($this->signedMessage);
     }
 
     public function testRejectOnlyAuthorizationHeaderAsSigned()
     {
-        $this->assertFalse($this->verifier->isSigned($this->authorizedMessage));
+        $this->expectException("HttpSignatures\SignatureParseException");
+        $this->verifier->isSigned($this->authorizedMessage);
     }
 
     public function testRejectTamperedRequestMethod()
@@ -168,13 +171,15 @@ class VerifierTest extends \PHPUnit_Framework_TestCase
     public function testRejectMessageWithGarbageSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'not="a",valid="signature"');
-        $this->assertFalse($this->verifier->isSigned($message));
+        $this->expectException("HttpSignatures\SignatureParseException");
+        $this->verifier->isSigned($message);
     }
 
     public function testRejectMessageWithPartialSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"');
-        $this->assertFalse($this->verifier->isSigned($message));
+        $this->expectException("HttpSignatures\SignatureParseException");
+        $this->verifier->isSigned($message);
     }
 
     public function testRejectsMessageWithUnknownKeyId()
