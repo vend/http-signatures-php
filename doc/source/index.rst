@@ -108,7 +108,7 @@ a SHA256 digest to the headers using the ``signWithdigest`` method:
 Adding a Digest header while signing
 '''''''''''''''''''''''''''''''''''''
 
-Include a ```Digest``` header automatically when signing:
+Include a ``Digest`` header automatically when signing:
 
 .. code-block:: php
 
