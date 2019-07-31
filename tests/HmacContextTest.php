@@ -205,13 +205,14 @@ class HmacContextTest extends TestCase
     public function testSignatureVerifier()
     {
         $message = $this->noDigestContext->signer()->sign(new Request('GET', '/path?query=123', [
-            'Signature' => 'keyId="pda",algorithm="hmac-sha1",headers="date",signature="x"',
+            // 'Signature' => 'keyId="pda",algorithm="hmac-sha1",headers="date",signature="x"',
             'Date' => 'x',
         ]));
-
         // assert it works without errors; correctness of results tested elsewhere.
         $this->assertTrue(is_bool($this->noDigestContext->verifier()->isSigned($message)));
     }
+
+    // TODO: Test rejecting message with multiple Signature and Authorization: Signature noHeadersContext
 
     public function testAuthorizationVerifier()
     {
