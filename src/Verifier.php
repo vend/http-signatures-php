@@ -24,9 +24,13 @@ class Verifier
      */
     public function isSigned($message)
     {
-        $verification = new Verification($message, $this->keyStore);
+        try {
+            $verification = new Verification($message, $this->keyStore, 'Signature');
 
-        return $verification->isSigned();
+            return $verification->verify();
+        } catch (\HttpSignatures\HeaderException $e) {
+            return false;
+        }
     }
 
     /**
@@ -36,9 +40,9 @@ class Verifier
      */
     public function isAuthorized($message)
     {
-        $verification = new Verification($message, $this->keyStore);
+        $verification = new Verification($message, $this->keyStore, 'Authorization');
 
-        return $verification->isAuthorized();
+        return $verification->verify();
     }
 
     /**
@@ -58,18 +62,35 @@ class Verifier
      *
      * @return bool
      */
-    public function isValidWithDigest($message)
+    public function isSignedWithDigest($message)
     {
-        if ($message->hasHeader('Digest')) {
-            $spp = new SignatureParametersParser($message->getHeader('Signature')[0]);
-            if (in_array('digest', explode(' ', $spp->parse()['headers']))) {
-                $bodyDigest = BodyDigest::fromMessage($message);
-                if ($bodyDigest->isValid($message)) {
-                    return $this->isValid($message);
-                }
+        if ($this->isValidDigest($message)) {
+            if ($this->isSigned($message)) {
+                return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * @param RequestInterface $message
+     *
+     * @return bool
+     */
+    public function isAuthorizedWithDigest($message)
+    {
+        if ($this->isValidDigest($message)) {
+            if ($this->isAuthorized($message)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function keyStore()
+    {
+        return $this->keyStore;
     }
 }
