@@ -75,6 +75,8 @@ class SignatureParametersParser
         $matches = [];
         $result = preg_match($segmentPattern, $segment, $matches);
         if (1 !== $result) {
+            // TODO: This is not strictly required, unknown parameters should be ignored
+            // @see https://tools.ietf.org/html/draft-cavage-http-signatures-10#section-2.2
             throw new SignatureParseException("Signature parameters segment '$segment' invalid");
         }
         array_shift($matches);
