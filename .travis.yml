@@ -29,3 +29,7 @@ matrix:
 cache:
   directories:
     - $HOME/.composer/cache/files
+
+branches:
+  except:
+  - doc
