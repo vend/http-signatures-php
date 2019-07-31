@@ -80,10 +80,10 @@ class VerifierRsaTest extends TestCase
 
     public function testRejectTamperedRsaRequestMethod()
     {
-      // $this->assertFalse($this->verifier->isSigned(
-      //     $this->sha1SignedMessage->withMethod('POST')
-      // ));
-      $this->assertFalse($this->verifier->isSigned(
+        // $this->assertFalse($this->verifier->isSigned(
+        //     $this->sha1SignedMessage->withMethod('POST')
+        // ));
+        $this->assertFalse($this->verifier->isSigned(
           $this->sha256SignedMessage->withMethod('POST')
       ));
     }
@@ -127,10 +127,10 @@ class VerifierRsaTest extends TestCase
 
     public function testRejectRsaMessageWithoutSignatureHeader()
     {
-      // $this->assertFalse($this->verifier->isSigned(
-      //   $this->sha1SignedMessage->withoutHeader('Signature')
-      // ));
-      $this->assertFalse($this->verifier->isSigned(
+        // $this->assertFalse($this->verifier->isSigned(
+        //   $this->sha1SignedMessage->withoutHeader('Signature')
+        // ));
+        $this->assertFalse($this->verifier->isSigned(
         $this->sha256SignedMessage->withoutHeader('Signature')
       ));
     }
