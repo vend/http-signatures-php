@@ -6,10 +6,12 @@
 .. Welcome to http-signatures-php's documentation!
    ===============================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+HTTP Signatures PHP library
+============================
 
+PHP implementation of `Signing HTTP Messages
+<https://tools.ietf.org/html/draft-cavage-http-signatures-10>`_ draft IETF specification,
+allowing cryptographic signing and verifying of [PSR7 messages][psr7].
 
 
 .. Indices and tables
@@ -19,16 +21,12 @@
     * :ref:`modindex`
     * :ref:`search`
 
-HTTP Signatures PHP library
-============================
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
-PHP implementation of [HTTP Signatures][draft10] draft specification;
-allowing cryptographic signing and verifying of [PSR7 messages][psr7].
-
-See also:
-
-* https://github.com/99designs/http-signatures-guzzlehttp
-* https://github.com/99designs/http-signatures-ruby
+   overview
+   quickstart
 
 
 Usage
