@@ -38,7 +38,7 @@ This type of signature uses a secret key known to you and the verifier.
 
   use HttpSignatures\Context;
 
-  $context = new Context([
+  $context = new HttpSignatures\Context([
     'keys' => ['key12' => 'your-secret-here'],
     'algorithm' => 'hmac-sha256',
     'headers' => ['(request-target)', 'Content-Type'],
@@ -113,7 +113,7 @@ the one used to sign the original message:
 
   use HttpSignatures\Context;
 
-  $context = new Context([
+  $context = new HttpSignatures\Context([
     'keys' => ['key300' => 'some-other-secret',
                 'key12' => 'secret-here']
   ]);
@@ -132,7 +132,7 @@ the X.509 PEM format certificates in place of the 'secret':
 
   use HttpSignatures\Context;
 
-  $context = new Context([
+  $context = new HttpSignatures\Context([
     'keys' => ['key43' => file_get_contents('/path/to/certificate'),
                'key87' => $someOtherCertificate],
   $context->verifier()->isSigned($message); // true or false
