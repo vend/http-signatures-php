@@ -1,5 +1,7 @@
 # HTTP Signatures
 
+[![Build Status](https://travis-ci.org/liamdennehy/http-signatures-php.svg?branch=master)](https://travis-ci.org/liamdennehy/http-signatures-php)
+[![Documentation Status](https://readthedocs.org/projects/http-signatures-php/badge/?version=latest)](https://http-signatures-php.readthedocs.io/en/latest/?badge=latest)
 
 PHP implementation of [HTTP Signatures][draft10] draft specification;
 allowing cryptographic signing and verifying of [PSR7 messages][psr7].
