@@ -31,8 +31,8 @@ You can add http-signatures-php as a dependency using the composer.phar CLI:
 
     php composer.phar require liamdennehy/http-signatures-php
 
-Alternatively, you can specify Guzzle as a dependency in your project's
-existing composer.json file:
+Alternatively, you can specify http-signatures-php as a dependency
+in your project's existing composer.json file:
 
 .. code-block:: js
 
