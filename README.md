@@ -6,24 +6,26 @@
 PHP implementation of [HTTP Signatures][draft10] draft specification;
 allowing cryptographic signing and verifying of [PSR7 messages][psr7].
 
-See also:
+<!-- See also:
 
 * https://github.com/99designs/http-signatures-guzzlehttp
 * https://github.com/99designs/http-signatures-ruby
+-->
 
+Complete documentation for this library can be found at 
+[Read The Docs](https://http-signatures-php.readthedocs.io/en/latest/)
 
 ## Usage
 ---
 
-
-Add [liamdennehy/http-signatures][package] to your [composer.json][composer].
+Add [liamdennehy/http-signatures-php][package] to your [composer.json][composer].
 * A message is assumed to be a PSR-7 compatible Request or Response objects.
-* A Context object is used to configure the signature parameters, and prepare
+* A ``Context`` object is used to configure the signature parameters, and prepare
   the verifier functionality.
 
 ### Signing a message
 
-Create a Context with your chosen algorithm, keys, and list of headers to sign.
+Create a ``Context`` with your chosen algorithm, keys, and list of headers to sign.
   (This is best placed in an application startup file)
 
 **Note**: If there's only one key in the `keys` hash, that will be used for signing.
@@ -91,9 +93,9 @@ $message->headers->get('digest');
 ### Verifying a Signed Message
 
 Most parameters are derived from the Signature in the signed message, so the
-Context can be created with fewer parameters.
+``Context`` can be created with fewer parameters.
 
-It is probably most useful to create a Context with multilpe keys/certificates.
+It is probably most useful to create a ``Context`` with multilpe keys/certificates.
 the signature verifier will look up the key using the keyId attribute of the
 Signature header and use that to validate the signature.
 
@@ -116,7 +118,7 @@ the one used to sign the original message:
 #### Verifying a RSA signed message
 
 An RSA signature is verified using the certificate associated with the
-Private Key that created the message. Create a context by importing
+Private Key that created the message. Create a ``Context` by importing
 the X.509 PEM format certificates in place of the 'secret':
 
 ```php
