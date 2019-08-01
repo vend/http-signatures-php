@@ -25,14 +25,14 @@ installs them into your project.
     # Install Composer
     curl -sS https://getcomposer.org/installer | php
 
-You can add http-signatures-php as a dependency using the composer.phar CLI:
+You can add http-signatures-php as a dependency using the ``composer.phar`` CLI:
 
 .. code-block:: bash
 
     php composer.phar require liamdennehy/http-signatures-php
 
 Alternatively, you can specify http-signatures-php as a dependency
-in your project's existing composer.json file:
+in your project's existing ``composer.json`` file:
 
 .. code-block:: js
 
@@ -42,11 +42,12 @@ in your project's existing composer.json file:
       }
    }
 
-After installing, you need to require Composer's autoloader:
+After installing, you need to require Composer's autoloader in your project
+to be able to locate the library within PHP:
 
 .. code-block:: php
 
-    require 'vendor/autoload.php';
+    require __DIR__ . '/vendor/autoload.php';
 
 You can find out more on how to install Composer, configure autoloading, and
 other best-practices for defining dependencies at `getcomposer.org <http://getcomposer.org>`_.

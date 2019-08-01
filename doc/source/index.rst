@@ -33,13 +33,11 @@ allowing cryptographic signing and verifying of
 Usage
 ------
 
-Add `liamdennehy/http-signatures <https://packagist.org/packages/liamdennehy/http-signatures>`_
+Add `liamdennehy/http-signatures-php <https://packagist.org/packages/liamdennehy/http-signatures-php>`_
 to your ``composer.json``. Full instructions can be found in :ref:`installation`
 
 To quickly see how a message is signed, take a look in :ref:`signing_quickstart`
 in the Quickstart guide.
-
-
 
 
 Contributing
@@ -47,12 +45,13 @@ Contributing
 
 Pull Requests are welcome.
 
-- [draft10]: http://tools.ietf.org/html/draft-cavage-http-signatures-10
-- [Symfony\Component\HttpFoundation\Request]: https://github.com/symfony/HttpFoundation/blob/master/Request.php
-- [composer]: https://getcomposer.org/
-- [package]: https://packagist.org/packages/liamdennehy/http-signatures
-- [psr7]: http://www.php-fig.org/psr/psr-7/
-
+..
+    - [draft10]: http://tools.ietf.org/html/draft-cavage-http-signatures-10
+    - [Symfony\Component\HttpFoundation\Request]: https://github.com/symfony/HttpFoundation/blob/master/Request.php
+    - [composer]: https://getcomposer.org/
+    - [package]: https://packagist.org/packages/liamdennehy/http-signatures-php
+    - [psr7]: http://www.php-fig.org/psr/psr-7/
+    
 License
 ----------
 
