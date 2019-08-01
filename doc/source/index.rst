@@ -11,7 +11,8 @@ HTTP Signatures PHP library
 
 PHP implementation of `Signing HTTP Messages
 <https://tools.ietf.org/html/draft-cavage-http-signatures-10>`_ draft IETF specification,
-allowing cryptographic signing and verifying of [PSR7 messages][psr7].
+allowing cryptographic signing and verifying of 
+`PHP PSR-7 messages <http://www.php-fig.org/psr/psr-7/>`_.
 
 
 .. Indices and tables
@@ -32,87 +33,12 @@ allowing cryptographic signing and verifying of [PSR7 messages][psr7].
 Usage
 ------
 
-Add [liamdennehy/http-signatures][package] to your [composer.json][composer].
+Add `liamdennehy/http-signatures <https://packagist.org/packages/liamdennehy/http-signatures>`_
+to your ``composer.json``. Full instructions can be found in :ref:`installation`
 
-* A message is assumed to be a PSR-7 compatible Request or Response objects.
-* A Context object is used to configure the signature parameters, and prepare
-  the verifier functionality.
+To quickly see how a message is signed, take a look in :ref:`signing_quickstart`
+in the Quickstart guide.
 
-Signing a message
-`````````````````````
-
-Create a Context with your chosen algorithm, keys, and list of headers to sign.
-  (This is best placed in an application startup file)
-
-**Note**: If there's only one key in the `keys` hash, that will be used for signing.
-Otherwise, specify one via `'signingKeyId' => 'examplekey'`.
-
-HMAC (shared Secret) Signature type
-'''''''''''''''''''''''''''''''''''''
-
-.. code-block:: php
-
-  use HttpSignatures\Context;
-
-  $context = new Context([
-    'keys' => ['key12' => 'secret-here'],
-    'algorithm' => 'hmac-sha256',
-    'headers' => ['(request-target)', 'Date', 'Accept'],
-  ]);
-
-
-RSA (Private Key) Signature type
-''''''''''''''''''''''''''''''''''
-
-Note: This library does not handle encrypted private keys, so this should
-be presented un-encrypted to the key store.
-
-.. code-block:: php
-
-  use HttpSignatures\Context;
-
-  $context = new Context([
-    'keys' => ['key43' => file_get_contents('/path/to/privatekeyfile')],
-    'algorithm' => 'rsa-sha256',
-    'headers' => ['(request-target)', 'Date', 'Accept'],
-  ]);
-
-Signing the Message:
-'''''''''''''''''''''''
-
-.. code-block:: php
-
-  $context->signer()->sign($message);
-
-Now `$message` contains the signature headers:
-
-.. code-block:: php
-
-  $message->headers->get('Signature');
-  // keyId="examplekey",algorithm="hmac-sha256",headers="...",signature="..."
-
-  $message->headers->get('Authorization');
-  // Signature keyId="examplekey",algorithm="hmac-sha256",headers="...",signature="..."
-
-
-Many sites require a ``Digest`` header to be included in the signature. Add
-a SHA256 digest to the headers using the ``signWithdigest`` method:
-
-.. code-block:: php
-
-  $context->signer()->signWithDigest($message);
-
-
-Adding a Digest header while signing
-'''''''''''''''''''''''''''''''''''''
-
-Include a ``Digest`` header automatically when signing:
-
-.. code-block:: php
-
-  $context->signer()->signWithDigest($message);
-  $message->headers->get('digest');
-  // SHA-256=<base64SHA256Digest>
 
 Verifying a Signed Message
 ````````````````````````````
