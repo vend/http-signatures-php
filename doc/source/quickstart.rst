@@ -6,6 +6,8 @@ This page provides a quick introduction to Guzzle and introductory examples.
 If you have not already installed, Guzzle, head over to the :ref:`installation`
 page.
 
+.. _signing_quickstart:
+
 Signing a message
 ==================
 
