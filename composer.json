@@ -1,5 +1,5 @@
 {
-    "name": "liamdennehy/http-signatures",
+    "name": "liamdennehy/http-signatures-php",
     "description": "Sign and verify HTTP messages",
     "keywords": ["http", "https", "signing", "signed", "signature", "hmac", "rsa", "ec"],
     "license": "MIT",
