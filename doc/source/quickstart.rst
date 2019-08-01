@@ -2,8 +2,10 @@
 Quickstart
 ==========
 
-This page provides a quick introduction to Guzzle and introductory examples.
-If you have not already installed, Guzzle, head over to the :ref:`installation`
+This page provides a quick introduction to HTTP Signatures PHP library
+and introductory examples.
+
+If you have not already installed HTTP Signatures PHP library head over to the :ref:`installation`
 page.
 
 .. _signing_quickstart:
