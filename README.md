@@ -12,19 +12,41 @@ allowing cryptographic signing and verifying of [PSR-7 messages][psr7].
 * https://github.com/99designs/http-signatures-ruby
 -->
 
+
+## Features
+
+- Sign HTTP Messages according to [Signing HTTP Message draft IETF RFC version 10][draft10]
+- Sign & verify messages using HMACs
+- Sign & verify messages with RSA private/public keys
+- Add a ``Digest`` header, or automatically add the header while signing in a single operation
+- Verify a ``Digest`` header while verifying the signature
+
 Complete documentation for this library can be found at 
 [Read The Docs](https://http-signatures-php.readthedocs.io/en/latest/)
 
-## Usage
----
+## Simple Usage
 
 Add [liamdennehy/http-signatures-php][package] to your [``composer.json``][composer].
 
-
-* A message is assumed to be a PSR-7 compatible Request or Response objects.
+* A message is assumed to be a PSR-7 compatible Request or Response.
 * A ``Context`` object is used to configure the signature parameters, and prepare
   the verifier functionality.
+* The ``signWithDigest`` function witll add a ``Digest`` header and digitally
+  sign the message in a new ``Signature`` header.
 
+Using an PSR-7 request ``$message`` ready to send:
+
+```php
+  use HttpSignatures\Context;
+
+  $context = new HttpSignatures\Context([
+    'keys' => ['mykey' => file_get_contents('/path/to/privatekeyfile')],
+    'algorithm' => 'rsa-sha256',
+    'headers' => ['(request-target)', 'Date'],
+  ]);
+
+  $context->signer()->signWithDigest($message);
+```
 
 ## Contributing
 
