@@ -35,8 +35,8 @@ As desribed in the `draft RFC <https://tools.ietf.org/html/draft-cavage-http-sig
 the ``keyId`` parameter is used by the verifier to look up the key that can
 be used to verify the provided signature.
 
-In the HMAC case these are the same key - the shared secret. In the RSA or EC
-case, this is the public component of the key.
+- In the HMAC case these are the same key - the shared secret.
+- In the RSA or EC case, this is the public component of the key.
 
 Note that the RFC is not specific about the meaning of the parameter's value.
 This could be a fingerprint of the certificate containing the key, the
@@ -67,11 +67,11 @@ Headers
 Authorization header
 ----------------------
 
-.. code-block::
+.. code-block:: text
 
   Authorization: Signature <signatureline>
 
-The ``Authororization`` header is described in
+The ``Authorization`` header is described in
 :rfc:`7235#section-4.2` and provides
 a way for a HTTP client to "authenticate itself with an origin server". This
 gives a hint that the header is used almost exclusively by a client
@@ -92,8 +92,20 @@ message.
 Signature header
 ----------------
 
-.. code-block:: 
+.. code-block:: text
 
   Signature: <signatureline>
 
+The ``Signature`` header is a new HTTP header proposed in
+`<https://tools.ietf.org/html/draft-cavage-http-signatures>`_.
+
+The value of the header is simply the ref:`header-signatureline`.
+
+This header is more versatile than the ``Authorization`` header as it can
+be used:
+
+- by both the client *and* server (HTTP request and HTTP respnse respectively)
+- to prove the identity of the signer (similar to the ``Authorization`` header
+  in ``Signature`` mode
+- in addition to an ``Authorization`` header when needed
 
