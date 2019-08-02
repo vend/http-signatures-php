@@ -151,3 +151,15 @@ be used:
 - to prove the identity of the signer (similar to the ``Authorization`` header
   in ``Signature`` mode
 - in addition to an ``Authorization`` header when needed
+
+Digest header
+-------------
+
+.. code-block:: text
+
+  Digest: SHA-256=<base64string>
+
+The ``Digest`` header is a way to determine the integrity of the payload
+(aka body) of a HTTP request. Including the ``Digest`` in the signature's
+:ref:`signature_line_signature` allows the integrity of the payload to be
+included in the signature itself.
