@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\Request;
 use HttpSignatures\Context;
 use HttpSignatures\Tests\TestKeys;
 use PHPUnit\Framework\TestCase;
+use HttpSignatures\AlgorithmException;
 
 class RsaContextTest extends TestCase
 {
@@ -71,11 +72,9 @@ class RsaContextTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException     \HttpSignatures\AlgorithmException
-     */
     public function testRsaBadalgorithm()
     {
+        $this->expectException(AlgorithmException::class);
         $sha224context = new Context([
               'keys' => ['rsa1' => TestKeys::rsaPrivateKey],
               'algorithm' => 'rsa-sha224',

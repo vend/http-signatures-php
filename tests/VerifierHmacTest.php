@@ -5,6 +5,7 @@ namespace HttpSignatures\tests;
 use GuzzleHttp\Psr7\Request;
 use HttpSignatures\KeyStore;
 use HttpSignatures\Verifier;
+use HttpSignatures\DigestException;
 use PHPUnit\Framework\TestCase;
 
 class VerifierHmacTest extends TestCase
@@ -121,23 +122,19 @@ class VerifierHmacTest extends TestCase
         ));
     }
 
-    /**
-     * @expectedException \HttpSignatures\DigestException
-     */
     public function testRejectBadDigestName()
     {
         $message = $this->signedMessage->withoutHeader('Digest')
           ->withHeader('Digest', 'SHA-255=xxx');
+        $this->expectException(DigestException::class);
         $this->assertFalse($this->verifier->isValidDigest($message));
     }
 
-    /**
-     * @expectedException \HttpSignatures\DigestException
-     */
     public function testRejectBadDigestLine()
     {
         $message = $this->signedMessage->withoutHeader('Digest')
           ->withHeader('Digest', 'h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI=');
+        $this->expectException(DigestException::class);
         $this->assertFalse($this->verifier->isValidDigest($message));
     }
 

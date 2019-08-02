@@ -3,6 +3,7 @@
 namespace HttpSignatures\tests;
 
 use HttpSignatures\SignatureParametersParser;
+use HttpSignatures\SignatureParseException;
 use PHPUnit\Framework\TestCase;
 
 class SignatureParametersParserTest extends TestCase
@@ -23,23 +24,20 @@ class SignatureParametersParserTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \HttpSignatures\SignatureParseException
-     */
     public function testParseThrowsTypedException()
     {
         $parser = new SignatureParametersParser('nope');
+        $this->expectException(SignatureParseException::class);
         $parser->parse();
     }
 
-    /**
-     * @expectedException \HttpSignatures\SignatureParseException
-     */
+    // TODO: Detect all missing mandatory parms
     public function testParseExceptionForMissingComponents()
     {
         $parser = new SignatureParametersParser(
             'keyId="example",algorithm="hmac-sha1",headers="(request-target) date"'
         );
+        $this->expectException(SignatureParseException::class);
         $parser->parse();
     }
 }

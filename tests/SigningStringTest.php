@@ -66,13 +66,11 @@ class SigningStringTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \HttpSignatures\Exception
-     */
     public function testSigningStringErrorForMissingHeader()
     {
         $headerList = new HeaderList(['nope']);
         $ss = new SigningString($headerList, $this->message('/'));
+        $this->expectException(\HttpSignatures\Exception::class);
         $ss->string();
     }
 
