@@ -28,6 +28,8 @@ accompanies.
 
 The parameters of the Signature Line are described here
 
+.. _signature_line_keyid:
+
 keyId
 ------
 
@@ -49,15 +51,56 @@ transmitted - either by agreeing an explicit value, or the format of the
 value acceptable to the verifier if it not distinct.
 This is typically found in the API documentation for the resource.
 
+.. _signature_line_algorithm:
+
 algorithm
 ----------
+
+The ``algorithm`` parameter informs the verifier which hash algorithm was used
+to generate the data actually signed by the signature ("hash" algorithm),
+and which cryptographic algorithm was used to sign that resulting hash
+("signature algorithm").
+
+The hash algorithm cannot be deduced simply by looking at the key and
+signature, so must be provided in this parameter.
+
+However the verifier should not rely on the signature algorithm part
+of this algorithm alone to determine which siganture algorithm to use.
+Rather the metadata associated with the key should be relied on spearate
+from the signed message.
+
+This arises as some types of keys can be used in multiple modes, and
+selecting the wrong mode for verification may introduce vulnerabilities.
+
+In any case the signer and verifier should agree which hash and signature
+algorithms are acceptable for a given request/response.
+
+.. _signature_line_headers:
 
 headers
 --------
 
+The ``headers`` parameter is a space-delimited list of the headers that are
+included in the signature itself. These headers are specified in lowercase,
+and let the verifier know which order to place the headers in when the
+signature is verified - so this order cannot be altered.
+
+The signer and verifier(s) need to agree on which headers should be included
+in any signature, especially if there are minimum headers that must be included
+and any that are forbidden.
+
+.. _signature_line_signature:
+
 signature
 ----------
 
+The ``signature`` parameter is simply a base64-encoded string representing
+the raw digital signature (which is likely encoded with unprintable characters).
+
+The verifier can use this string, along with the other parameters and headers
+in the HTTP message, to verify the contents of the message (specifically the
+message's :ref:`signature_line_headers`) have not been altered since the signer
+generated the signature.
 
 Headers
 ==========
@@ -65,7 +108,7 @@ Headers
 .. _header-authorization:
 
 Authorization header
-----------------------
+--------------------
 
 .. code-block:: text
 
@@ -109,3 +152,14 @@ be used:
   in ``Signature`` mode
 - in addition to an ``Authorization`` header when needed
 
+Digest header
+-------------
+
+.. code-block:: text
+
+  Digest: SHA-256=<base64string>
+
+The ``Digest`` header is a way to determine the integrity of the payload
+(aka body) of a HTTP request. Including the ``Digest`` in the signature's
+:ref:`signature_line_signature` allows the integrity of the payload to be
+included in the signature itself.
