@@ -128,7 +128,7 @@ to the specifications of
 
 Since this header is involved primarily with authenticating a client to a
 server, this header is not typically used to protect the content of a
-message.
+message, and is not useful in a HTTP Response.
 
 .. _header-signature:
 
