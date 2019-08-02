@@ -1,7 +1,7 @@
 {
     "name": "liamdennehy/http-signatures-php",
-    "description": "Sign and verify HTTP messages",
-    "keywords": ["http", "https", "signing", "signed", "signature", "hmac", "rsa", "ec"],
+    "description": "Sign and verify PSR-7 HTTP messages with HMAC and RSA keys",
+    "keywords": ["http", "https", "signing", "signed", "signature", "hmac", "rsa", "digital signature", "electronic signature"],
     "license": "MIT",
     "authors": [
         {
