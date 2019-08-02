@@ -57,7 +57,7 @@ algorithm
 ----------
 
 The ``algorithm`` parameter informs the verifier which hash algorithm was used
-to generate the data actually signed by the signature ("hash" algorithm),
+to generate the hash signed by the signature ("hash" algorithm),
 and which cryptographic algorithm was used to sign that resulting hash
 ("signature algorithm").
 
@@ -65,12 +65,13 @@ The hash algorithm cannot be deduced simply by looking at the key and
 signature, so must be provided in this parameter.
 
 However the verifier should not rely on the signature algorithm part
-of this algorithm alone to determine which siganture algorithm to use.
-Rather the metadata associated with the key should be relied on spearate
+of the ``algorithm`` parameter alone to determine which signature algorithm to use.
+Rather the "metadata" (e.g. which elliptic curve algorithm the key
+is designed for) associated with the key should be relied on separate
 from the signed message.
 
 This arises as some types of keys can be used in multiple modes, and
-selecting the wrong mode for verification may introduce vulnerabilities.
+selecting the wrong mode for verification may introduce security issues.
 
 In any case the signer and verifier should agree which hash and signature
 algorithms are acceptable for a given request/response.
