@@ -2,12 +2,12 @@
 The HTTP Signature
 =========================
 
-This section is based on the Signing HTTP Messages IETF draft RFC version 10:
-
-https://tools.ietf.org/html/draft-cavage-http-signatures-10
+This section is based on the definitions and descriptions in
+`Signing HTTP Messages IETF draft RFC version 10
+<https://tools.ietf.org/html/draft-cavage-http-signatures-10>`_.
 
 .. contents:: Table of Contents
-   :depth: 2
+   :depth: 1
    :local:
 
 .. _header-signatureline:
