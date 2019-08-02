@@ -28,7 +28,8 @@ allowing cryptographic signing and verifying of
 
    overview
    quickstart
-
+   reference/headers
+   reference/api
 
 Usage
 ------
@@ -55,4 +56,9 @@ Pull Requests are welcome.
 License
 ----------
 
-HTTP Signatures PHP library is licensed under [The MIT License (MIT)](LICENSE).
+HTTP Signatures PHP library is licensed under
+`The MIT License (MIT) <https://opensource.org/licenses/MIT>`_
+
+This documentation is licensed under
+`Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+<https://creativecommons.org/licenses/by-sa/4.0/>`_
