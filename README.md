@@ -29,13 +29,13 @@ Add [liamdennehy/http-signatures-php][package] to your [``composer.json``][compo
 ## Contributing
 
 Pull Requests are welcome, as are 
-[issue reports][github] if you encounter any problems.
+[issue reports][github-issues] if you encounter any problems.
 
 [draft10]: http://tools.ietf.org/html/draft-cavage-http-signatures-10
 [Symfony\Component\HttpFoundation\Request]: https://github.com/symfony/HttpFoundation/blob/master/Request.php
 [composer]: https://getcomposer.org/
 [package]: https://packagist.org/packages/liamdennehy/http-signatures-php
-[github]: https://github.com/liamdennehy/http-signatures-php/issues
+[github-issues]: https://github.com/liamdennehy/http-signatures-php/issues
 [psr7]: http://www.php-fig.org/psr/psr-7/
 
 ## License
