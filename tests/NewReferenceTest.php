@@ -161,11 +161,23 @@ content-length: 18';
             self::defaultTestAuthorizationHeaderValue,
             $authorizedMessage->getHeader('Authorization')[0]
         );
+
+        // authorize() does not interfere with Signature header
+        $this->assertEquals(
+          0,
+          sizeof($authorizedMessage->getHeader('Signature'))
+        );
         $signedMessage = $defaultContext->signer()->sign($this->referenceMessage);
         $this->assertEquals(
             self::defaultTestSignatureLineValue,
             $signedMessage->getHeader('Signature')[0]
         );
+        // sign() does not interfere with Authorization header
+        $this->assertEquals(
+          0,
+          sizeof($signedMessage->getHeader('Authorization'))
+        );
+
         // TODO: Missing headers parameter
         $this->assertTrue(
             $this->verifier->isAuthorized($this->referenceMessage->withHeader(
