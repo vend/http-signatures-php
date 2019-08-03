@@ -64,8 +64,8 @@ class Verification
             switch ($key->getType()) {
                 case 'secret':
                   return hash_equals(
-                    $this->expectedSignatureBase64(),
-                    $this->providedSignatureBase64()
+                    $this->expectedSignature()->string(),
+                    $this->providedSignature()
                     );
                 case 'asymmetric':
                     $signedString = new SigningString(
@@ -93,14 +93,6 @@ class Verification
     }
 
     /**
-     * @return string
-     */
-    private function expectedSignatureBase64()
-    {
-        return base64_encode($this->expectedSignature()->string());
-    }
-
-    /**
      * @return Signature
      */
     private function expectedSignature()
@@ -116,9 +108,9 @@ class Verification
     /**
      * @return string
      */
-    private function providedSignatureBase64()
+    private function providedSignature()
     {
-        return $this->headerParameter('signature');
+        return base64_decode($this->headerParameter('signature'));
     }
 
     /**
