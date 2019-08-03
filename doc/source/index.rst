@@ -93,7 +93,9 @@ other best-practices for defining dependencies at `getcomposer.org <http://getco
 Contributing
 ============
 
-Pull Requests are welcome.
+Pull Requests are welcome, as are
+`issue reports <https://github.com/liamdennehy/http-signatures-php/issues>`_
+if you encounter any problems.
 
 ..
     - [draft10]: http://tools.ietf.org/html/draft-cavage-http-signatures-10
