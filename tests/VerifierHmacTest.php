@@ -95,7 +95,7 @@ class VerifierHmacTest extends TestCase
         );
     }
 
-    // TODO Follow flow to find out why this breaks
+    // TODO Implement missing headers parameter
     // public function testVerifyValidMessageNoHeaders()
     // {
     //     $this->assertTrue($this->verifier->isSigned($this->validMessageNoHeaders));
