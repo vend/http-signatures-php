@@ -4,7 +4,6 @@ namespace HttpSignatures\tests;
 
 use HttpSignatures\KeyStore;
 use PHPUnit\Framework\TestCase;
-use HttpSignatures\Exception;
 
 class KeyStoreTest extends TestCase
 {
@@ -12,7 +11,7 @@ class KeyStoreTest extends TestCase
     {
         $ks = new KeyStore(['id' => 'secret']);
         // TODO: Make this exception more specific. KeyException?
-        $this->expectException(\HttpSignatures\Exception::class);
+        $this->expectException(\HttpSignatures\KeyStoreException::class);
         $key = $ks->fetch('nope');
     }
 }
