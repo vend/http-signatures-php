@@ -27,6 +27,8 @@ class Verification
         $this->message = $message;
         $this->keyStore = $keyStore;
 
+        // TODO: Find one signature line within multiple header instances
+        // This will permit e.g. Authorization: Bearer to co-exist with Authorization: Signature
         switch (strtolower($header)) {
             case 'signature':
                 if (0 == sizeof($message->getHeader('Signature'))) {
@@ -42,7 +44,12 @@ class Verification
             } elseif (sizeof($message->getHeader('Authorization')) > 1) {
                 throw new HeaderException("Multiple headers named 'Authorization'");
             }
-                $signatureLine = substr($message->getHeader('Authorization')[0], strlen('Signature '));
+                $authorizationType = explode(' ', $message->getHeader('Authorization')[0])[0];
+                if ('Signature' == $authorizationType) {
+                    $signatureLine = substr($message->getHeader('Authorization')[0], strlen('Signature '));
+                } else {
+                    throw new HeaderException("Unknown Authorization type $authorizationType, cannot verify");
+                }
                 break;
             default:
                 throw new HeaderException("Unknown header type '".$header."', cannot verify");

@@ -68,7 +68,7 @@ class VerifierHmacTest extends TestCase
     {
         $signatureHeaderNoHeaders = sprintf(
             'keyId="%s",algorithm="%s",signature="%s"',
-            'pda',
+            'secret1',
             'hmac-sha256',
             'SNERdFCcPF40c5kw0zbmSXn3Zv2KZWhiuHSijhZs/4k='
         );
@@ -81,7 +81,7 @@ class VerifierHmacTest extends TestCase
 
         $this->authorizedMessageNoHeaders = new Request('GET', '/path?query=123', [
             'Date' => 'today',
-            'Authorization' => 'Signature'.$signatureHeaderNoHeaders,
+            'Authorization' => 'Signature '.$signatureHeaderNoHeaders,
             'NoSignatureHeaders' => 'true',
         ]);
     }
@@ -95,11 +95,19 @@ class VerifierHmacTest extends TestCase
         );
     }
 
-    // TODO Implement missing headers parameter
-    // public function testVerifyValidMessageNoHeaders()
-    // {
-    //     $this->assertTrue($this->verifier->isSigned($this->validMessageNoHeaders));
-    // }
+    public function testVerifyValidMessageNoHeaders()
+    {
+        $this->assertTrue(
+          $this->verifier->isSigned(
+            $this->signedMessageNoHeaders
+          )
+        );
+        $this->assertTrue(
+          $this->verifier->isAuthorized(
+            $this->authorizedMessageNoHeaders
+          )
+        );
+    }
 
     public function testVerifyValidDigest()
     {
