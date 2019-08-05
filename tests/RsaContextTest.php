@@ -51,9 +51,10 @@ class RsaContextTest extends TestCase
 
     public function testSha256Signer()
     {
+        $expectedDigestHeader = 'SHA-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=';
         $message = new Request('GET', '/path?query=123', ['date' => 'today', 'accept' => 'llamas']);
 
-        $message = $this->sha256context->signer()->sign($message);
+        $signedMessage = $this->sha256context->signer()->sign($message);
         $expectedSha256String = implode(',', [
             'keyId="rsa1"',
             'algorithm="rsa-sha256"',
@@ -68,7 +69,21 @@ class RsaContextTest extends TestCase
 
         $this->assertEquals(
             $expectedSha256String,
-            $message->getHeader('Signature')[0]
+            $signedMessage->getHeader('Signature')[0]
+        );
+
+        $signedWithDigestMessage = $this->sha256context->signer()->signWithDigest($message);
+
+        $this->assertEquals(
+            $expectedDigestHeader,
+            $signedWithDigestMessage->getHeader('Digest')[0]
+        );
+
+        $authorizedWithDigestMessage = $this->sha256context->signer()->authorizeWithDigest($message);
+
+        $this->assertEquals(
+            $expectedDigestHeader,
+            $authorizedWithDigestMessage->getHeader('Digest')[0]
         );
     }
 
