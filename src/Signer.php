@@ -66,6 +66,20 @@ class Signer
         return $this->sign($bodyDigest->setDigestHeader($message));
     }
 
+    // TODO: Unit Test
+    /**
+     * @param RequestInterface $message
+     *
+     * @return RequestInterface
+     */
+    public function authorizeWithDigest($message)
+    {
+        $bodyDigest = new BodyDigest();
+        $this->headerList = $bodyDigest->putDigestInHeaderList($this->headerList);
+
+        return $this->authorize($bodyDigest->setDigestHeader($message));
+    }
+
     /**
      * @param RequestInterface $message
      *
