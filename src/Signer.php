@@ -66,7 +66,6 @@ class Signer
         return $this->sign($bodyDigest->setDigestHeader($message));
     }
 
-    // TODO: Unit Test
     /**
      * @param RequestInterface $message
      *
@@ -79,12 +78,6 @@ class Signer
 
         return $this->authorize($bodyDigest->setDigestHeader($message));
     }
-
-    /**
-     * @param RequestInterface $message
-     *
-     * @return RequestInterface
-     */
 
     /**
      * @param RequestInterface $message
