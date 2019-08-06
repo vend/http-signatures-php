@@ -75,7 +75,7 @@ class Verification
                     $this->providedSignature()
                     );
                   if (!$result) {
-                      throw new \HttpSignatures\SignatureException('Invalid signature', 1);
+                      throw new SignatureException('Invalid signature', 1);
                   } else {
                       return true;
                   }
@@ -96,12 +96,12 @@ class Verification
                 default:
                     throw new Exception("Unknown key type '".$key->getType()."', cannot verify");
             }
-        } catch (SignatureParseException $e) {
-            return false;
+            // } catch (SignatureParseException $e) {
+        //     return false;
         } catch (KeyStoreException $e) {
             return false;
-        } catch (SignedHeaderNotPresentException $e) {
-            return false;
+            // } catch (SignedHeaderNotPresentException $e) {
+        //     return false;
         }
     }
 

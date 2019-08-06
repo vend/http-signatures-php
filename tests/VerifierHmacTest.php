@@ -5,7 +5,6 @@ namespace HttpSignatures\tests;
 use GuzzleHttp\Psr7\Request;
 use HttpSignatures\KeyStore;
 use HttpSignatures\Verifier;
-use HttpSignatures\DigestException;
 use PHPUnit\Framework\TestCase;
 
 class VerifierHmacTest extends TestCase
