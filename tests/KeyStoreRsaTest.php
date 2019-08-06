@@ -4,7 +4,6 @@ namespace HttpSignatures\tests;
 
 use HttpSignatures\KeyStore;
 use HttpSignatures\Key;
-use HttpSignatures\KeyException;
 use HttpSignatures\Tests\TestKeys;
 use PHPUnit\Framework\TestCase;
 
@@ -108,7 +107,7 @@ class KeyStoreRsaTest extends TestCase
           'private_key_type' => 'OPENSSL_KEYTYPE_RSA',
           'private_key_bits' => 1024, ]
         );
-        $this->expectException(KeyException::class);
+        $this->expectException(\HTTPSignatures\KeyException::class);
         $ks = new Key('badpki', [TestKeys::rsaCert, $privateKey]);
     }
 }
