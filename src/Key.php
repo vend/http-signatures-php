@@ -207,6 +207,7 @@ class Key
         } else {
             // OpenSSL libraries don't have detection methods, so try..catch
             try {
+                // TODO: Silence openssl warning on unrecognised data
                 openssl_x509_export($object, $null);
 
                 return true;
