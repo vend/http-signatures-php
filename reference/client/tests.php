@@ -74,7 +74,6 @@ if (
 } else {
   print "Signature header NOT correctly generated: '$expectedSignatureHeaderValue'" . PHP_EOL;
 };
-print "--------------------------------------------------" . PHP_EOL;
 $response = $psr18Client->sendRequest($signedRequest);
 $resonseObject = json_decode((string)$response->getBody());
 if ($resonseObject->signatures->Signature) {
@@ -82,6 +81,7 @@ if ($resonseObject->signatures->Signature) {
 } else {
     print "Server reports Signature header NOT validated !!!!!!!!!!!" . PHP_EOL;
 };
+print "--------------------------------------------------" . PHP_EOL;
 
 $authorizedRequest = $defaultTestContext->signer()->authorize($referenceRequest);
 $expectedAuthorizationHeaderValue = trim(file_get_contents(__DIR__ . '/../headers/default-test-authorization'));
@@ -93,7 +93,6 @@ if (
   } else {
     print "Authorization header NOT correctly generated: '$expectedAuthorizationHeaderValue'" . PHP_EOL;
   };
-print "--------------------------------------------------" . PHP_EOL;
 $response = $psr18Client->sendRequest($authorizedRequest);
 $resonseObject = json_decode((string)$response->getBody());
 if ($resonseObject->signatures->Authorization) {
