@@ -3,7 +3,7 @@ Reference Implementation
 
 This library includes a reference client and server to demonstrate compliance
 with the v10 Reference Tests, as well as providing a utility for generating
-headers from the commandline.
+headers from the commandline. These require PHP 7.1 or above to run.
 
 # Client & Server
 

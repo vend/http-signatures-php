@@ -8,16 +8,17 @@ php:
   - "7.3"
 
 install:
+  - ./tools/strip-reference-deps.sh
   - composer require --no-update symfony/http-foundation $SYMFONY_VERSION; composer install
 
 script:
   - vendor/bin/phpunit
   - vendor/bin/php-cs-fixer fix -v --dry-run
 
-jobs:
-  include:
-    - stage: before_install
-      script: ./tools/strip-reference-deps.sh
+# jobs:
+#   include:
+#     - stage: before_install
+#       script: ./tools/strip-reference-deps.sh
 
 env:
   - SYMFONY_VERSION: ~2
