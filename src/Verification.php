@@ -70,10 +70,16 @@ class Verification
             $key = $this->key();
             switch ($key->getType()) {
                 case 'secret':
-                  return hash_equals(
+                  $result = hash_equals(
                     $this->expectedSignature()->string(),
                     $this->providedSignature()
                     );
+                  if (!$result) {
+                      throw new \HttpSignatures\SignatureException('Invalid signature', 1);
+                  } else {
+                      return true;
+                  }
+                  // no break
                 case 'asymmetric':
                     $signedString = new SigningString(
                         $this->headerList(),

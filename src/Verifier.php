@@ -10,11 +10,17 @@ class Verifier
     private $keyStore;
 
     /**
+     * @var string
+     */
+    private $status;
+
+    /**
      * @param KeyStoreInterface $keyStore
      */
     public function __construct(KeyStoreInterface $keyStore)
     {
         $this->keyStore = $keyStore;
+        $this->status = [];
     }
 
     /**
@@ -26,10 +32,32 @@ class Verifier
     {
         try {
             $verification = new Verification($message, $this->keyStore, 'Signature');
+            $result = $verification->verify();
 
-            return $verification->verify();
-        } catch (\HttpSignatures\HeaderException | \HttpSignatures\SignatureParseException $e) {
-            return false;
+            return $result;
+        } catch (Exception $e) {
+            // TODO: Match at least one header
+            switch (get_class($e)) {
+                case 'HttpSignatures\HeaderException':
+                  $this->status[] = 'Signature header not found';
+
+                  return false;
+                  break;
+                case 'HttpSignatures\SignatureParseException':
+                  $this->status[] = 'Signature header malformed';
+
+                  return false;
+                  break;
+                case 'HttpSignatures\SignatureException':
+                  $this->status[] = $e->getMessage();
+
+                  return false;
+                  break;
+                default:
+                  $this->status[] = 'Unknown exception '.get_class($e).': '.$e->getMessage();
+                  throw $e;
+                  break;
+                }
         }
     }
 
@@ -42,10 +70,27 @@ class Verifier
     {
         try {
             $verification = new Verification($message, $this->keyStore, 'Authorization');
+            $result = $verification->verify();
 
-            return $verification->verify();
-        } catch (\HttpSignatures\HeaderException | HttpSignatures\SignatureParseException $e) {
-            return false;
+            return $result;
+        } catch (Exception $e) {
+            // TODO: Match at least one header
+            switch (get_class($e)) {
+                case 'HttpSignatures\HeaderException':
+                  $this->status[] = 'Authorization header not found';
+
+                  return false;
+                  break;
+                case 'HttpSignatures\SignatureParseException':
+                  $this->status[] = 'Authorization header malformed';
+
+                  return false;
+                  break;
+                default:
+                  $this->status[] = 'Unknown exception '.get_class($e).': '.$e->getMessage();
+                  throw $e;
+                  break;
+                }
         }
     }
 
@@ -56,9 +101,25 @@ class Verifier
      */
     public function isValidDigest($message)
     {
-        $bodyDigest = BodyDigest::fromMessage($message);
+        if (0 == sizeof($message->getHeader('Digest'))) {
+            $this->status[] = 'Digest header mising';
 
-        return $bodyDigest->isValid($message);
+            return false;
+        }
+        try {
+            $bodyDigest = BodyDigest::fromMessage($message);
+        } catch (\HttpSignatures\DigestException $e) {
+            $this->status[] = $e->getMessage();
+
+            return false;
+        }
+
+        $isValidDigest = $bodyDigest->isValid($message);
+        if (!$isValidDigest) {
+            $this->status[] = 'Digest header invalid';
+        }
+
+        return $isValidDigest;
     }
 
     /**
@@ -96,5 +157,10 @@ class Verifier
     public function keyStore()
     {
         return $this->keyStore;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
     }
 }
