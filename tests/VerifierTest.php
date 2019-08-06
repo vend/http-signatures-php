@@ -135,6 +135,10 @@ class VerifierTest extends TestCase
         $this->assertFalse(
           $this->verifier->isAuthorized($this->signedMessage)
         );
+        $this->assertEquals(
+          'Authorization header not found',
+          $this->verifier->getStatus()[0]
+        );
     }
 
     public function testRejectOnlyAuthorizationHeaderAsSigned()
@@ -142,18 +146,30 @@ class VerifierTest extends TestCase
         $this->assertFalse(
         $this->verifier->isSigned($this->authorizedMessage)
       );
+        $this->assertEquals(
+        'Signature header malformed',
+        $this->verifier->getStatus()[0]
+      );
     }
 
     public function testRejectTamperedRequestMethod()
     {
         $message = $this->signedMessage->withMethod('POST');
         $this->assertFalse($this->verifier->isSigned($message));
+        $this->assertEquals(
+          'Invalid signature',
+          $this->verifier->getStatus()[0]
+        );
     }
 
     public function testRejectTamperedDate()
     {
         $message = $this->signedMessage->withHeader('Date', self::DATE_DIFFERENT);
         $this->assertFalse($this->verifier->isSigned($message));
+        $this->assertEquals(
+          'Invalid signature',
+          $this->verifier->getStatus()[0]
+        );
     }
 
     public function testRejectTamperedSignature()
@@ -163,26 +179,40 @@ class VerifierTest extends TestCase
             preg_replace('/signature="/', 'signature="x', $this->signedMessage->getHeader('Signature')[0])
         );
         $this->assertFalse($this->verifier->isSigned($message));
+        $this->assertEquals(
+          'Invalid signature',
+          $this->verifier->getStatus()[0]
+        );
     }
 
     public function testRejectMessageWithoutSignatureHeader()
     {
         $message = $this->signedMessage->withoutHeader('Signature');
         $this->assertFalse($this->verifier->isSigned($message));
+        $this->assertEquals(
+          'Signature header not found',
+          $this->verifier->getStatus()[0]
+        );
     }
 
     public function testRejectMessageWithGarbageSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'not="a",valid="signature"');
-        // $this->expectException("HttpSignatures\SignatureParseException");
         $this->assertFalse($this->verifier->isSigned($message));
+        $this->assertEquals(
+          'Signature header malformed',
+          $this->verifier->getStatus()[0]
+        );
     }
 
     public function testRejectMessageWithPartialSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"');
-        // $this->expectException("HttpSignatures\SignatureParseException");
         $this->assertFalse($this->verifier->isSigned($message));
+        $this->assertEquals(
+          'Signature header malformed',
+          $this->verifier->getStatus()[0]
+        );
     }
 
     public function testRejectsMessageWithUnknownKeyId()

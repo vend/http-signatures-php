@@ -130,37 +130,36 @@ class VerifierHmacTest extends TestCase
         ));
     }
 
-    public function testRejectBadDigestName()
+    public function testRejectBadDigestAlgorithm()
     {
         $message = $this->signedMessage->withoutHeader('Digest')
           ->withHeader('Digest', 'SHA-255=xxx');
-        $this->expectException(DigestException::class);
         $this->assertFalse($this->verifier->isValidDigest($message));
+        $this->assertEquals(
+          "'SHA-255' in Digest header is not a valid algorithm",
+          $this->verifier->getStatus()[0]
+        );
     }
 
     public function testRejectBadDigestLine()
     {
         $message = $this->signedMessage->withoutHeader('Digest')
           ->withHeader('Digest', 'h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI=');
-        $this->expectException(DigestException::class);
         $this->assertFalse($this->verifier->isValidDigest($message));
+        $this->assertEquals(
+          "'h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI' in Digest header is not a valid algorithm",
+          $this->verifier->getStatus()[0]
+        );
     }
 
-    // TODO: Handle no 'headers' parameter
-    // public function testVerifyMessagesNoHeaders()
-    // {
-    //     $this->assertTrue($this->verifier->isSigned($this->signedMessageNoHeaders));
-    //     $this->assertTrue($this->verifier->isAuthorized($this->authorizedMessageNoHeaders));
-    // }
+    public function testVerifyMessagesNoHeaders()
+    {
+        $this->assertTrue($this->verifier->isSigned($this->signedMessageNoHeaders));
+        $this->assertTrue($this->verifier->isAuthorized($this->authorizedMessageNoHeaders));
+    }
 
     public function testVerifyAuthorized()
     {
-        // $message = $this->validMessage->withHeader(
-        //   'Authorization',
-        //   'Signature '.$this->validMessage->getHeader('Signature')[0]
-        //   );
-        // $message = $message->withoutHeader('Signature');
-
         $this->assertTrue($this->verifier->isAuthorized($this->authorizedMessage));
     }
 
@@ -196,14 +195,12 @@ class VerifierHmacTest extends TestCase
     public function testRejectHmacMessageWithGarbageSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'not="a",valid="signature"');
-        // $this->expectException("HttpSignatures\SignatureParseException");
         $this->assertFalse($this->verifier->isSigned($message));
     }
 
     public function testRejectHmacMessageWithPartialSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"');
-        // $this->expectException("HttpSignatures\SignatureParseException");
         $this->assertFalse($this->verifier->isSigned($message));
     }
 
