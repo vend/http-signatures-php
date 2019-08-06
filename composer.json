@@ -33,6 +33,10 @@
         "phpunit/phpunit": "~5.6",
         "symfony/http-foundation": "~2.8|~3.0",
         "symfony/psr-http-message-bridge": "^1.0.2",
-        "zendframework/zend-diactoros": "^1.1"
+        "zendframework/zend-diactoros": "^1.1",
+        "nyholm/psr7": "^1.1",
+        "nyholm/psr7-server": "^0.3.0",
+        "kriswallsmith/buzz": "^1.0",
+        "zendframework/zend-httphandlerrunner": "^1.1"
     }
 }

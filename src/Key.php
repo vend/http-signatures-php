@@ -207,8 +207,11 @@ class Key
         } else {
             // OpenSSL libraries don't have detection methods, so try..catch
             try {
-                // TODO: Silence openssl warning on unrecognised data
+                // OpenSSL emits a warning if the input does not parse, so silence
+                // it temporarily
+                $errorLevel = error_reporting(E_ERROR);
                 openssl_x509_export($object, $null);
+                error_reporting($errorLevel);
 
                 return true;
             } catch (\Exception $e) {

@@ -53,6 +53,16 @@ Using an PSR-7 request ``$message`` ready to send:
 Pull Requests are welcome, as are 
 [issue reports][github-issues] if you encounter any problems.
 
+**Note**: Due to composer dependencies for the reference implementation
+``composer install`` prior to local development is only posible on PHP 7.1,
+or by manually removing the incompatible dependencies using the command 
+(wrapped for readability):
+
+```sh
+  composer remove --dev \
+  nyholm/psr7 nyholm/psr7-server riswallsmith/buzz \
+  endframework/zend-httphandlerrunner
+```
 [draft10]: http://tools.ietf.org/html/draft-cavage-http-signatures-10
 [Symfony\Component\HttpFoundation\Request]: https://github.com/symfony/HttpFoundation/blob/master/Request.php
 [composer]: https://getcomposer.org/
