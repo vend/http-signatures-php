@@ -22,7 +22,7 @@ The command ``composer`` is presumed to be included in your path.
 ```sh
 git clone https://github.com/liamdennehy/http-signatures-php.git
 cd http-signatures-php
-git checkout -b reference ff630c855a4e237600852baf32f9ea3da9843409
+git checkout -b reference b01da93524c4c85aa2cd44a23dfc1aeb7dc0c6ac
 ```
 
 ## Server
