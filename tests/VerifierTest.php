@@ -226,5 +226,9 @@ class VerifierTest extends TestCase
     {
         $message = $this->signedMessage->withoutHeader('Date');
         $this->assertFalse($this->verifier->isSigned($message));
+        $this->assertEquals(
+          "Header 'date' not in message",
+          $this->verifier->getStatus()[0]
+        );
     }
 }

@@ -53,6 +53,11 @@ class Verifier
 
                   return false;
                   break;
+                case 'HttpSignatures\SignedHeaderNotPresentException':
+                  $this->status[] = $e->getMessage();
+
+                  return false;
+                  break;
                 default:
                   $this->status[] = 'Unknown exception '.get_class($e).': '.$e->getMessage();
                   throw $e;
