@@ -28,7 +28,7 @@ class Verifier
             $verification = new Verification($message, $this->keyStore, 'Signature');
 
             return $verification->verify();
-        } catch (\HttpSignatures\HeaderException $e) {
+        } catch (\HttpSignatures\HeaderException | \HttpSignatures\SignatureParseException $e) {
             return false;
         }
     }
@@ -40,9 +40,13 @@ class Verifier
      */
     public function isAuthorized($message)
     {
-        $verification = new Verification($message, $this->keyStore, 'Authorization');
+        try {
+            $verification = new Verification($message, $this->keyStore, 'Authorization');
 
-        return $verification->verify();
+            return $verification->verify();
+        } catch (\HttpSignatures\HeaderException | HttpSignatures\SignatureParseException $e) {
+            return false;
+        }
     }
 
     /**
