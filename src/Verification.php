@@ -27,6 +27,8 @@ class Verification
         $this->message = $message;
         $this->keyStore = $keyStore;
 
+        // TODO: Find one signature line within multiple header instances
+        // This will permit e.g. Authorization: Bearer to co-exist with Authorization: Signature
         switch (strtolower($header)) {
             case 'signature':
                 if (0 == sizeof($message->getHeader('Signature'))) {
@@ -34,7 +36,7 @@ class Verification
                 } elseif (sizeof($message->getHeader('Signature')) > 1) {
                     throw new HeaderException("Multiple headers named 'Signature'");
                 }
-                $headerParameterString = $message->getHeader('Signature')[0];
+                $signatureLine = $message->getHeader('Signature')[0];
                 break;
             case 'authorization':
             if (0 == sizeof($message->getHeader('Authorization'))) {
@@ -42,14 +44,19 @@ class Verification
             } elseif (sizeof($message->getHeader('Authorization')) > 1) {
                 throw new HeaderException("Multiple headers named 'Authorization'");
             }
-                $headerParameterString = substr($message->getHeader('Authorization')[0], strlen('Signature '));
+                $authorizationType = explode(' ', $message->getHeader('Authorization')[0])[0];
+                if ('Signature' == $authorizationType) {
+                    $signatureLine = substr($message->getHeader('Authorization')[0], strlen('Signature '));
+                } else {
+                    throw new HeaderException("Unknown Authorization type $authorizationType, cannot verify");
+                }
                 break;
             default:
                 throw new HeaderException("Unknown header type '".$header."', cannot verify");
                 break;
         }
         $signatureParametersParser = new SignatureParametersParser(
-          $headerParameterString
+          $signatureLine
         );
         $this->parameters = $signatureParametersParser->parse();
     }
@@ -206,7 +213,11 @@ class Verification
     {
         // $parameters = $this->parameters();
         if (!isset($this->parameters[$name])) {
-            throw new Exception("Signature parameters does not contain '$name'");
+            if ('headers' == $name) {
+                return 'date';
+            } else {
+                throw new Exception("Signature parameters does not contain '$name'");
+            }
         }
 
         return $this->parameters[$name];

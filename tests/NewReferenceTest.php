@@ -42,7 +42,7 @@ G6aFKaqQfOXKCyWoUiVknQJAXrlgySFci/2ueKlIE1QqIiLSZ8V8OlpFLRnb1pzI
 -----END RSA PRIVATE KEY-----';
 
     const referenceBodyDigest =
-    'SHA=tj5avyK6vso+7JtQ/8DiILGsBHc=,SHA-256=trAQsTFTIMB6oYLMOLE7XAMn9Rv8of/HF4xlM5xSSYk=';
+    'SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=';
 
     const referenceHeaders =
     [
@@ -53,24 +53,21 @@ G6aFKaqQfOXKCyWoUiVknQJAXrlgySFci/2ueKlIE1QqIiLSZ8V8OlpFLRnb1pzI
         'Digest' => self::referenceBodyDigest,
     ];
 
-    const referenceBody = '{
-    "hello": "world",
-    "date": "Mon, 12 Nov 2018 19:32:27 GMT"
-}';
+    const referenceBody = '{"hello": "world"}';
     const referenceMethod = 'POST';
-    const referenceUri = '/myPet?type=dog&name=Spot';
+    const referenceUri = '/foo?param=value&pet=dog';
 
     // Header List if no headers parameter is specified
     const defaultHeaders = ['date'];
 
-    const defaultTestSignatureHeaderValue =
+    const defaultTestSignatureLineValue =
       'keyId="Test",algorithm="rsa-sha256",'.
       'signature="SjWJWbWN7i0wzBvtPl8rbASWz5xQW6mcJmn+ibttBqtifLN7Sazz'.
       '6m79cNfwwb8DMJ5cou1s7uEGKKCs+FLEEaDV5lp7q25WqS+lavg7T8hc0GppauB'.
       '6hbgEKTwblDHYGEtbGmtdHgVCk9SuS13F0hZ8FD0k/5OxEPXe5WozsbM="';
 
     const defaultTestAuthorizationHeaderValue =
-      'Signature '.self::defaultTestSignatureHeaderValue;
+      'Signature '.self::defaultTestSignatureLineValue;
 
     const defaultTestSigningString = 'date: Sun, 05 Jan 2014 21:31:40 GMT';
 
@@ -85,7 +82,7 @@ G6aFKaqQfOXKCyWoUiVknQJAXrlgySFci/2ueKlIE1QqIiLSZ8V8OlpFLRnb1pzI
         'Signature '.self::basicTestSignatureHeaderValue;
 
     const basicTestSigningString =
-'(request-target): post /myPet?type=dog&name=Spot
+'(request-target): post /foo?param=value&pet=dog
 host: example.com
 date: Sun, 05 Jan 2014 21:31:40 GMT';
 
@@ -102,7 +99,7 @@ date: Sun, 05 Jan 2014 21:31:40 GMT';
       'Signature '.self::allHeadersTestSignatureHeaderValue;
 
     const allHeadersTestSigningString =
-'(request-target): post /myPet?type=dog&name=Spot
+'(request-target): post /foo?param=value&pet=dog
 host: example.com
 date: Sun, 05 Jan 2014 21:31:40 GMT
 content-type: application/json
@@ -159,25 +156,39 @@ content-length: 18';
             'algorithm' => 'rsa-sha256',
         ]);
 
-        // $authorizedMessage = $defaultContext->signer()->authorize($this->referenceMessage);
-        // $this->assertEquals(
-        //     self::defaultTestAuthorizationHeaderValue,
-        //     $authorizedMessage->getHeader('Authorization')[0]
-        // );
-        // $this->assertEquals(
-        //     self::defaultTestSignatureHeaderValue,
-        //     $authorizedMessage->getHeader('Signature')[0]
-        // );
-        // $this->assertTrue(
-        //     $this->verifier->isValid($this->referenceMessage->withHeader(
-        //         'Authorization', self::defaultTestAuthorizationHeaderValue
-        //     ))
-        // );
-        // $this->assertTrue(
-        //     $this->verifier->isValid($this->referenceMessage->withHeader(
-        //         'Signature', self::defaultTestSignatureHeaderValue
-        //     ))
-        // );
+        $authorizedMessage = $defaultContext->signer()->authorize($this->referenceMessage);
+        $this->assertEquals(
+            self::defaultTestAuthorizationHeaderValue,
+            $authorizedMessage->getHeader('Authorization')[0]
+        );
+
+        // authorize() does not interfere with Signature header
+        $this->assertEquals(
+          0,
+          sizeof($authorizedMessage->getHeader('Signature'))
+        );
+        $signedMessage = $defaultContext->signer()->sign($this->referenceMessage);
+        $this->assertEquals(
+            self::defaultTestSignatureLineValue,
+            $signedMessage->getHeader('Signature')[0]
+        );
+        // sign() does not interfere with Authorization header
+        $this->assertEquals(
+          0,
+          sizeof($signedMessage->getHeader('Authorization'))
+        );
+
+        // TODO: Missing headers parameter
+        $this->assertTrue(
+            $this->verifier->isAuthorized($this->referenceMessage->withHeader(
+                'Authorization', self::defaultTestAuthorizationHeaderValue
+            ))
+        );
+        $this->assertTrue(
+            $this->verifier->isSigned($this->referenceMessage->withHeader(
+                'Signature', self::defaultTestSignatureLineValue
+            ))
+        );
     }
 
     /**
@@ -199,25 +210,26 @@ content-length: 18';
             'algorithm' => 'rsa-sha256',
             'headers' => self::basicTestHeaders,
         ]);
-        $authorizedMessage = $defaultContext->signer()->sign($this->referenceMessage);
-        // $this->assertEquals(
-        //     self::basicTestAuthorizationHeaderValue,
-        //     $authorizedMessage->getHeader('Authorization')[0]
-        // );
-        // $this->assertEquals(
-        //     self::basicTestSignatureHeaderValue,
-        //     $authorizedMessage->getHeader('Signature')[0]
-        // );
-        // $this->assertTrue(
-        //     $this->verifier->isValid($this->referenceMessage->withHeader(
-        //         'Authorization', self::basicTestAuthorizationHeaderValue
-        //     ))
-        // );
-        // $this->assertTrue(
-        //     $this->verifier->isValid($this->referenceMessage->withHeader(
-        //         'Signature', self::basicTestSignatureHeaderValue
-        //     ))
-        // );
+        $authorizedMessage = $defaultContext->signer()->authorize($this->referenceMessage);
+        $this->assertEquals(
+            self::basicTestAuthorizationHeaderValue,
+            $authorizedMessage->getHeader('Authorization')[0]
+        );
+        $signedMessage = $defaultContext->signer()->sign($this->referenceMessage);
+        $this->assertEquals(
+            self::basicTestSignatureHeaderValue,
+            $signedMessage->getHeader('Signature')[0]
+        );
+        $this->assertTrue(
+            $this->verifier->isAuthorized($this->referenceMessage->withHeader(
+                'Authorization', self::basicTestAuthorizationHeaderValue
+            ))
+        );
+        $this->assertTrue(
+            $this->verifier->isSigned($this->referenceMessage->withHeader(
+                'Signature', self::basicTestSignatureHeaderValue
+            ))
+        );
     }
 
     /**
@@ -230,35 +242,37 @@ content-length: 18';
             $this->referenceMessage
         );
 
-        // $this->assertEquals(
-        //     self::allHeadersTestSigningString,
-        //     $ss->string()
-        // );
+        $this->assertEquals(
+            self::allHeadersTestSigningString,
+            $ss->string()
+        );
+
         $defaultContext = new Context([
             'keys' => ['Test' => self::referencePrivateKey],
             'algorithm' => 'rsa-sha256',
             'headers' => self::allHeadersTestHeaders,
         ]);
 
-        $authorizedMessage = $defaultContext->signer()->sign($this->referenceMessage);
-        // $this->assertEquals(
-        //     self::allHeadersTestAuthorizationHeaderValue,
-        //     $authorizedMessage->getHeader('Authorization')[0]
-        // );
-        // $this->assertEquals(
-        //     self::allHeadersTestSignatureHeaderValue,
-        //     $authorizedMessage->getHeader('Signature')[0]
-        // );
-        // $this->assertTrue(
-        //     $this->verifier->isValid($this->referenceMessage->withHeader(
-        //         'Authorization', self::allHeadersTestAuthorizationHeaderValue
-        //     ))
-        // );
-        // $this->assertTrue(
-        //     $this->verifier->isValid($this->referenceMessage->withHeader(
-        //         'Signature', self::allHeadersTestSignatureHeaderValue
-        //     ))
-        // );
+        $authorizedMessage = $defaultContext->signer()->authorize($this->referenceMessage);
+        $this->assertEquals(
+            self::allHeadersTestAuthorizationHeaderValue,
+            $authorizedMessage->getHeader('Authorization')[0]
+        );
+        $signedMessage = $defaultContext->signer()->sign($this->referenceMessage);
+        $this->assertEquals(
+            self::allHeadersTestSignatureHeaderValue,
+            $signedMessage->getHeader('Signature')[0]
+        );
+        $this->assertTrue(
+            $this->verifier->isAuthorized($this->referenceMessage->withHeader(
+                'Authorization', self::allHeadersTestAuthorizationHeaderValue
+            ))
+        );
+        $this->assertTrue(
+            $this->verifier->isSigned($this->referenceMessage->withHeader(
+                'Signature', self::allHeadersTestSignatureHeaderValue
+            ))
+        );
 
         $this->assertTrue(true);
     }

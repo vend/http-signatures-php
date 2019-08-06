@@ -132,7 +132,7 @@ class VerifierTest extends TestCase
 
     public function testRejectOnlySignatureHeaderAsAuthorized()
     {
-        $this->expectException("HttpSignatures\SignatureParseException");
+        $this->expectException("HttpSignatures\HeaderException");
         $this->verifier->isAuthorized($this->signedMessage);
     }
 
