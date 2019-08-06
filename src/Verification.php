@@ -70,10 +70,16 @@ class Verification
             $key = $this->key();
             switch ($key->getType()) {
                 case 'secret':
-                  return hash_equals(
+                  $result = hash_equals(
                     $this->expectedSignature()->string(),
                     $this->providedSignature()
                     );
+                  if (!$result) {
+                      throw new SignatureException('Invalid signature', 1);
+                  } else {
+                      return true;
+                  }
+                  // no break
                 case 'asymmetric':
                     $signedString = new SigningString(
                         $this->headerList(),
@@ -90,12 +96,12 @@ class Verification
                 default:
                     throw new Exception("Unknown key type '".$key->getType()."', cannot verify");
             }
-        } catch (SignatureParseException $e) {
-            return false;
+            // } catch (SignatureParseException $e) {
+        //     return false;
         } catch (KeyStoreException $e) {
             return false;
-        } catch (SignedHeaderNotPresentException $e) {
-            return false;
+            // } catch (SignedHeaderNotPresentException $e) {
+        //     return false;
         }
     }
 

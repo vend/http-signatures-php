@@ -3,7 +3,6 @@
 namespace HttpSignatures\tests;
 
 use HttpSignatures\SignatureParametersParser;
-use HttpSignatures\SignatureParseException;
 use PHPUnit\Framework\TestCase;
 
 class SignatureParametersParserTest extends TestCase
@@ -27,7 +26,7 @@ class SignatureParametersParserTest extends TestCase
     public function testParseThrowsTypedException()
     {
         $parser = new SignatureParametersParser('nope');
-        $this->expectException(SignatureParseException::class);
+        $this->expectException(\HTTPSignatures\SignatureParseException::class);
         $parser->parse();
     }
 
@@ -37,7 +36,7 @@ class SignatureParametersParserTest extends TestCase
         $parser = new SignatureParametersParser(
             'keyId="example",algorithm="hmac-sha1",headers="(request-target) date"'
         );
-        $this->expectException(SignatureParseException::class);
+        $this->expectException(\HTTPSignatures\SignatureParseException::class);
         $parser->parse();
     }
 }

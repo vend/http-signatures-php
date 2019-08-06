@@ -189,6 +189,18 @@ content-length: 18';
                 'Signature', self::defaultTestSignatureLineValue
             ))
         );
+
+        // Authorized <> Signed
+        $this->assertFalse(
+            $this->verifier->isSigned($this->referenceMessage->withHeader(
+                'Authorization', self::defaultTestAuthorizationHeaderValue
+            ))
+        );
+        $this->assertFalse(
+            $this->verifier->isAuthorized($this->referenceMessage->withHeader(
+                'Signature', self::defaultTestSignatureLineValue
+            ))
+        );
     }
 
     /**
