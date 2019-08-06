@@ -196,15 +196,15 @@ class VerifierHmacTest extends TestCase
     public function testRejectHmacMessageWithGarbageSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'not="a",valid="signature"');
-        $this->expectException("HttpSignatures\SignatureParseException");
-        $this->verifier->isSigned($message);
+        // $this->expectException("HttpSignatures\SignatureParseException");
+        $this->assertFalse($this->verifier->isSigned($message));
     }
 
     public function testRejectHmacMessageWithPartialSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"');
-        $this->expectException("HttpSignatures\SignatureParseException");
-        $this->verifier->isSigned($message);
+        // $this->expectException("HttpSignatures\SignatureParseException");
+        $this->assertFalse($this->verifier->isSigned($message));
     }
 
     public function testRejectsHmacMessageWithUnknownKeyId()

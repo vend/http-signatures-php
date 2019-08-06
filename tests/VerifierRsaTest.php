@@ -137,23 +137,27 @@ class VerifierRsaTest extends TestCase
 
     public function testRejectRsaMessageWithGarbageSignatureHeader()
     {
-        $this->expectException("HttpSignatures\SignatureParseException");
+        // $this->expectException("HttpSignatures\SignatureParseException");
         // $this->verifier->isSigned(
         //   $this->sha1SignedMessage->withHeader('Signature', 'not="a",valid="signature"')
         // );
-        $this->verifier->isSigned(
-          $this->sha256SignedMessage->withHeader('Signature', 'not="a",valid="signature"')
+        $this->assertFalse(
+          $this->verifier->isSigned(
+            $this->sha256SignedMessage->withHeader('Signature', 'not="a",valid="signature"')
+          )
         );
     }
 
     public function testRejectRsaMessageWithPartialSignatureHeader()
     {
-        $this->expectException("HttpSignatures\SignatureParseException");
+        // $this->expectException("HttpSignatures\SignatureParseException");
         // $this->verifier->isSigned(
         //   $this->sha1SignedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"')
         // );
-        $this->verifier->isSigned(
-          $this->sha256SignedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"')
+        $this->assertFalse(
+          $this->verifier->isSigned(
+            $this->sha256SignedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"')
+          )
         );
     }
 

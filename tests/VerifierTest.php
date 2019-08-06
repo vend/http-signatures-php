@@ -132,14 +132,16 @@ class VerifierTest extends TestCase
 
     public function testRejectOnlySignatureHeaderAsAuthorized()
     {
-        $this->expectException("HttpSignatures\HeaderException");
-        $this->verifier->isAuthorized($this->signedMessage);
+        $this->assertFalse(
+          $this->verifier->isAuthorized($this->signedMessage)
+        );
     }
 
     public function testRejectOnlyAuthorizationHeaderAsSigned()
     {
-        $this->expectException("HttpSignatures\SignatureParseException");
-        $this->verifier->isSigned($this->authorizedMessage);
+        $this->assertFalse(
+        $this->verifier->isSigned($this->authorizedMessage)
+      );
     }
 
     public function testRejectTamperedRequestMethod()
@@ -172,15 +174,15 @@ class VerifierTest extends TestCase
     public function testRejectMessageWithGarbageSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'not="a",valid="signature"');
-        $this->expectException("HttpSignatures\SignatureParseException");
-        $this->verifier->isSigned($message);
+        // $this->expectException("HttpSignatures\SignatureParseException");
+        $this->assertFalse($this->verifier->isSigned($message));
     }
 
     public function testRejectMessageWithPartialSignatureHeader()
     {
         $message = $this->signedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"');
-        $this->expectException("HttpSignatures\SignatureParseException");
-        $this->verifier->isSigned($message);
+        // $this->expectException("HttpSignatures\SignatureParseException");
+        $this->assertFalse($this->verifier->isSigned($message));
     }
 
     public function testRejectsMessageWithUnknownKeyId()
