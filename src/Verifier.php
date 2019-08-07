@@ -30,6 +30,7 @@ class Verifier
      */
     public function isSigned($message)
     {
+        $this->status = [];
         try {
             $verification = new Verification($message, $this->keyStore, 'Signature');
             $result = $verification->verify();
@@ -58,6 +59,11 @@ class Verifier
 
                   return false;
                   break;
+                case 'HttpSignatures\KeyStoreException':
+                  $this->status[] = $e->getMessage();
+
+                  return false;
+                  break;
                 default:
                   $this->status[] = 'Unknown exception '.get_class($e).': '.$e->getMessage();
                   throw $e;
@@ -73,6 +79,7 @@ class Verifier
      */
     public function isAuthorized($message)
     {
+        $this->status = [];
         try {
             $verification = new Verification($message, $this->keyStore, 'Authorization');
             $result = $verification->verify();
@@ -106,6 +113,7 @@ class Verifier
      */
     public function isValidDigest($message)
     {
+        $this->status = [];
         if (0 == sizeof($message->getHeader('Digest'))) {
             $this->status[] = 'Digest header mising';
 

@@ -208,6 +208,15 @@ class VerifierHmacTest extends TestCase
         $keyStore = new KeyStore(['nope' => 'secret']);
         $verifier = new Verifier($keyStore);
         $this->assertFalse($verifier->isSigned($this->signedMessage));
+        $this->assertEquals(
+          "Cannot locate key for supplied keyId 'secret1'",
+          $verifier->getStatus()[0]
+        );
+        $verifier->isSigned($this->signedMessage);
+        $this->assertEquals(
+          1,
+          sizeof($verifier->getStatus())
+        );
     }
 
     public function testRejectsHmacMessageMissingSignedHeaders()

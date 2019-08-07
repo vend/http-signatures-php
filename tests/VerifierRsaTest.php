@@ -167,6 +167,15 @@ class VerifierRsaTest extends TestCase
         $verifier = new Verifier($keyStore);
         // $this->assertFalse($verifier->isSigned($this->sha1SignedMessage));
         $this->assertFalse($verifier->isSigned($this->sha256SignedMessage));
+        $this->assertEquals(
+          "Cannot locate key for supplied keyId 'rsa1'",
+          $verifier->getStatus()[0]
+        );
+        $verifier->isSigned($this->sha256SignedMessage);
+        $this->assertEquals(
+          1,
+          sizeof($verifier->getStatus())
+        );
     }
 
     public function testRejectsRsaMessageMissingSignedHeaders()
