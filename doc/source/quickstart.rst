@@ -8,6 +8,11 @@ and introductory examples.
 If you have not already installed HTTP Signatures PHP library head over to the :ref:`installation`
 page.
 
+A reference signing client and verifying server are included that will
+actually exchange messages over HTTP. To see the library in actions,
+head over the the `Reference Implementation Guide in the file REFERENCE.md
+<https://github.com/liamdennehy/http-signatures-php/blob/6.4.1/REFERENCE.md>`_.
+
 .. _signing_quickstart:
 
 Signing a message

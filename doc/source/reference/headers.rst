@@ -90,6 +90,9 @@ The signer and verifier(s) need to agree on which headers should be included
 in any signature, especially if there are minimum headers that must be included
 and any that are forbidden.
 
+If this parameter is missing from a provided signature line, then the default
+value "``date``" is used to verify the signature.
+
 .. _signature_line_signature:
 
 signature
@@ -143,7 +146,7 @@ Signature header
 The ``Signature`` header is a new HTTP header proposed in
 `<https://tools.ietf.org/html/draft-cavage-http-signatures>`_.
 
-The value of the header is simply the ref:`header-signatureline`.
+The value of the header is simply the :ref:`header-signatureline`.
 
 This header is more versatile than the ``Authorization`` header as it can
 be used:
@@ -160,7 +163,16 @@ Digest header
 
   Digest: SHA-256=<base64string>
 
-The ``Digest`` header is a way to determine the integrity of the payload
-(aka body) of a HTTP request. Including the ``Digest`` in the signature's
+The ``Digest`` header is a base64-encoded representation of the hash of
+the message payload (aka body). It is defined in :rfc:`3230`. Note that this
+library has only rudimentary support for this specification e.g. can only
+include a single digest value while the RFC requires support for multiple
+digests.
+
+Including the ``Digest`` header in the
+signature's
 :ref:`signature_line_signature` allows the integrity of the payload to be
 included in the signature itself.
+
+When the message has no payload - e.g. a GET request, or a reponse with code
+`202` - the digest is calculated on the empty string ``''``.
