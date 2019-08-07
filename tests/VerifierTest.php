@@ -139,6 +139,11 @@ class VerifierTest extends TestCase
           'Authorization header not found',
           $this->verifier->getStatus()[0]
         );
+        $this->verifier->isAuthorized($this->signedMessage);
+        $this->assertEquals(
+          1,
+          sizeof($this->verifier->getStatus())
+        );
     }
 
     public function testRejectOnlyAuthorizationHeaderAsSigned()
@@ -150,6 +155,11 @@ class VerifierTest extends TestCase
         'Signature header malformed',
         $this->verifier->getStatus()[0]
       );
+        $this->verifier->isSigned($this->authorizedMessage);
+        $this->assertEquals(
+        1,
+        sizeof($this->verifier->getStatus())
+      );
     }
 
     public function testRejectTamperedRequestMethod()
@@ -159,6 +169,11 @@ class VerifierTest extends TestCase
         $this->assertEquals(
           'Invalid signature',
           $this->verifier->getStatus()[0]
+        );
+        $this->verifier->isSigned($message);
+        $this->assertEquals(
+          1,
+          sizeof($this->verifier->getStatus())
         );
     }
 
@@ -193,6 +208,11 @@ class VerifierTest extends TestCase
           'Signature header not found',
           $this->verifier->getStatus()[0]
         );
+        $this->verifier->isSigned($message);
+        $this->assertEquals(
+          1,
+          sizeof($this->verifier->getStatus())
+        );
     }
 
     public function testRejectMessageWithGarbageSignatureHeader()
@@ -202,6 +222,11 @@ class VerifierTest extends TestCase
         $this->assertEquals(
           'Signature header malformed',
           $this->verifier->getStatus()[0]
+        );
+        $this->verifier->isSigned($message);
+        $this->assertEquals(
+          1,
+          sizeof($this->verifier->getStatus())
         );
     }
 
@@ -220,6 +245,15 @@ class VerifierTest extends TestCase
         $keyStore = new KeyStore(['nope' => 'secret']);
         $verifier = new Verifier($keyStore);
         $this->assertFalse($verifier->isSigned($this->signedMessage));
+        $this->assertEquals(
+          "Cannot locate key for supplied keyId 'pda'",
+          $verifier->getStatus()[0]
+        );
+        $verifier->isSigned($this->signedMessage);
+        $this->assertEquals(
+          1,
+          sizeof($verifier->getStatus())
+        );
     }
 
     public function testRejectsMessageMissingSignedHeaders()
