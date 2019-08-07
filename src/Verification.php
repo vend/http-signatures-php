@@ -99,8 +99,7 @@ class Verification
             // } catch (SignatureParseException $e) {
         //     return false;
         } catch (KeyStoreException $e) {
-            throw new KeyStoreException("Cannot locate key for supplied keyId '{$this->parameter('keyId')}'" , 1);
-
+            throw new KeyStoreException("Cannot locate key for supplied keyId '{$this->parameter('keyId')}'", 1);
             // return false;
             // } catch (SignedHeaderNotPresentException $e) {
         //     return false;

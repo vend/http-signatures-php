@@ -155,8 +155,8 @@ class VerifierTest extends TestCase
         'Signature header malformed',
         $this->verifier->getStatus()[0]
       );
-      $this->verifier->isSigned($this->authorizedMessage);
-      $this->assertEquals(
+        $this->verifier->isSigned($this->authorizedMessage);
+        $this->assertEquals(
         1,
         sizeof($this->verifier->getStatus())
       );
