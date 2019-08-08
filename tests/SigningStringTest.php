@@ -109,4 +109,16 @@ class SigningStringTest extends TestCase
 
         return $psrRequest;
     }
+
+    public function testDuplicateHeader()
+    {
+        $headerList = new HeaderList(['date']);
+        $message = $this->message->withAddedHeader('Date', 'another date');
+        $ss = new SigningString($headerList, $message);
+
+        $this->assertEquals(
+            'date: Mon, 28 Jul 2014 15:39:13 -0700, another date',
+            $ss->string()
+        );
+    }
 }

@@ -67,9 +67,19 @@ class SigningString
     private function headerValue($name)
     {
         if ($this->message->hasHeader($name)) {
-            $header = $this->message->getHeader($name);
+            $header = '';
+            $values = $this->message->getHeader($name);
+            while (sizeof($values) > 0) {
+                $header = $header.$values[0];
+                if (sizeof($values) > 1) {
+                    $header = $header.', ';
+                }
+                array_shift($values);
+            }
+            // $header = $this->message->getHeader($name);
 
-            return end($header);
+            return $header;
+        // return end($header);
         } else {
             throw new SignedHeaderNotPresentException("Header '$name' not in message");
         }
