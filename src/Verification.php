@@ -254,4 +254,14 @@ class Verification
     {
         return HeaderList::fromString($this->parameter('headers'));
     }
+
+    public function getSigningString()
+    {
+        $signedString = new SigningString(
+          $this->headerList(),
+          $this->message
+      );
+
+        return $signedString->string();
+    }
 }

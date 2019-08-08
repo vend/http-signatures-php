@@ -34,6 +34,10 @@ class Verifier
         try {
             $verification = new Verification($message, $this->keyStore, 'Signature');
             $result = $verification->verify();
+            $this->status[] =
+              "Signed with SigningString '".
+              base64_encode($verification->getSigningString()).
+              "'";
 
             return $result;
         } catch (Exception $e) {
@@ -83,6 +87,10 @@ class Verifier
         try {
             $verification = new Verification($message, $this->keyStore, 'Authorization');
             $result = $verification->verify();
+            $this->status[] =
+              "Authorized with SigningString '".
+              base64_encode($verification->getSigningString()).
+              "'";
 
             return $result;
         } catch (Exception $e) {
