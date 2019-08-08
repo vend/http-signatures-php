@@ -121,4 +121,16 @@ class SigningStringTest extends TestCase
             $ss->string()
         );
     }
+
+    public function testEmptyHeaders()
+    {
+        // Not cryptographically useful, but strictly required.
+        $headerList = new HeaderList([]);
+        $ss = new SigningString($headerList, $this->message);
+
+        $this->assertEquals(
+            '',
+            $ss->string()
+        );
+    }
 }
