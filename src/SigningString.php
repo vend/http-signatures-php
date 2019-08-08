@@ -71,10 +71,10 @@ class SigningString
             $values = $this->message->getHeader($name);
             while (sizeof($values) > 0) {
                 $header = $header.$values[0];
-                if (sizeof($values) > 1) {
+                array_shift($values);
+                if (sizeof($values) > 0) {
                     $header = $header.', ';
                 }
-                array_shift($values);
             }
             // $header = $this->message->getHeader($name);
 
