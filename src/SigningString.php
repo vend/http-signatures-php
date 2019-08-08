@@ -35,10 +35,14 @@ class SigningString
      */
     private function lines()
     {
-        return array_map(
-            [$this, 'line'],
-            $this->headerList->names
-        );
+        if (is_null($this->headerList->names)) {
+            return [];
+        } else {
+            return array_map(
+              [$this, 'line'],
+              $this->headerList->names
+          );
+        }
     }
 
     /**
