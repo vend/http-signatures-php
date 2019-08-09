@@ -162,6 +162,19 @@ content-length: 18';
             $authorizedMessage->getHeader('Authorization')[0]
         );
 
+        // Permit Passing null as header list
+        $defaultContext = new Context([
+            'keys' => ['Test' => self::referencePrivateKey],
+            'algorithm' => 'rsa-sha256',
+            'headers' => null,
+        ]);
+
+        $authorizedMessage = $defaultContext->signer()->authorize($this->referenceMessage);
+        $this->assertEquals(
+            self::defaultTestAuthorizationHeaderValue,
+            $authorizedMessage->getHeader('Authorization')[0]
+        );
+
         // authorize() does not interfere with Signature header
         $this->assertEquals(
           0,
@@ -178,7 +191,6 @@ content-length: 18';
           sizeof($signedMessage->getHeader('Authorization'))
         );
 
-        // TODO: Missing headers parameter
         $this->assertTrue(
             $this->verifier->isAuthorized($this->referenceMessage->withHeader(
                 'Authorization', self::defaultTestAuthorizationHeaderValue

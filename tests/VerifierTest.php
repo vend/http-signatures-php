@@ -107,11 +107,29 @@ class VerifierTest extends TestCase
     public function testVerifySignedMessage()
     {
         $this->assertTrue($this->verifier->isSigned($this->signedMessage));
+        $this->assertEquals(
+          "Signed with SigningString 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
+          $this->verifier->getStatus()[0]
+        );
+        $this->verifier->isSigned($this->signedMessage);
+        $this->assertEquals(
+          1,
+          sizeof($this->verifier->getStatus())
+        );
     }
 
     public function testVerifyAuthorizedMessage()
     {
         $this->assertTrue($this->verifier->isAuthorized($this->authorizedMessage));
+        $this->assertEquals(
+          "Authorized with SigningString 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
+          $this->verifier->getStatus()[0]
+        );
+        $this->verifier->isAuthorized($this->authorizedMessage);
+        $this->assertEquals(
+          1,
+          sizeof($this->verifier->getStatus())
+        );
     }
 
     // TODO: Decide on compatibility for isValid() for 99designs/http-signatures-php compat
@@ -264,5 +282,14 @@ class VerifierTest extends TestCase
           "Header 'date' not in message",
           $this->verifier->getStatus()[0]
         );
+    }
+
+    public function testGetSigningString()
+    {
+        $this->assertTrue($this->verifier->isSigned($this->signedMessage));
+        $this->assertEquals(
+        "Signed with SigningString 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
+        $this->verifier->getStatus()[0]
+      );
     }
 }

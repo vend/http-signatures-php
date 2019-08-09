@@ -15,11 +15,16 @@ class HeaderList
      */
     public function __construct(array $names, $headerListSpecified = true)
     {
-        $this->names = array_map(
-            [$this, 'normalize'],
-            $names
-        );
-        $this->headerListSpecified = $headerListSpecified;
+        if (!$names) {
+            $names = ['date'];
+            $this->headerListSpecified = false;
+        } else {
+            $this->names = array_map(
+              [$this, 'normalize'],
+              $names
+          );
+            $this->headerListSpecified = $headerListSpecified;
+        }
     }
 
     /**

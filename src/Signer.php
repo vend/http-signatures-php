@@ -108,4 +108,11 @@ class Signer
             $this->headerList
         );
     }
+
+    public function getSigningString($message)
+    {
+        $singingString = new SigningString($this->headerList, $message);
+
+        return $singingString->string();
+    }
 }

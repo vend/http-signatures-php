@@ -11,10 +11,20 @@ use PHPUnit\Framework\TestCase;
 
 class SigningStringTest extends TestCase
 {
+    public function setUp()
+    {
+        $this->message = new Request(
+          'GET',
+          '/path',
+          ['date' => 'Mon, 28 Jul 2014 15:39:13 -0700']
+        );
+        $this->psr7Factory = new DiactorosFactory();
+    }
+
     public function testWithoutQueryString()
     {
         $headerList = new HeaderList(['(request-target)']);
-        $ss = new SigningString($headerList, $this->message('/path'));
+        $ss = new SigningString($headerList, $this->message);
 
         $this->assertEquals(
             '(request-target): get /path',
@@ -25,7 +35,11 @@ class SigningStringTest extends TestCase
     public function testSigningStringWithOrderedQueryParameters()
     {
         $headerList = new HeaderList(['(request-target)', 'date']);
-        $ss = new SigningString($headerList, $this->message('/path?a=antelope&z=zebra'));
+        $uri = $this->message->getUri()->withQuery('a=antelope&z=zebra');
+        $ss = new SigningString(
+          $headerList,
+          $this->message->withUri($uri)
+        );
 
         $this->assertEquals(
             "(request-target): get /path?a=antelope&z=zebra\ndate: Mon, 28 Jul 2014 15:39:13 -0700",
@@ -36,7 +50,11 @@ class SigningStringTest extends TestCase
     public function testSigningStringWithUnorderedQueryParameters()
     {
         $headerList = new HeaderList(['(request-target)', 'date']);
-        $ss = new SigningString($headerList, $this->message('/path?z=zebra&a=antelope'));
+        $uri = $this->message->getUri()->withQuery('z=zebra&a=antelope');
+        $ss = new SigningString(
+          $headerList,
+          $this->message->withUri($uri)
+        );
 
         $this->assertEquals(
             "(request-target): get /path?z=zebra&a=antelope\ndate: Mon, 28 Jul 2014 15:39:13 -0700",
@@ -69,14 +87,14 @@ class SigningStringTest extends TestCase
     public function testSigningStringErrorForMissingHeader()
     {
         $headerList = new HeaderList(['nope']);
-        $ss = new SigningString($headerList, $this->message('/'));
+        $uri = $this->message->getUri()->withPath('/');
+
+        $ss = new SigningString(
+          $headerList,
+          $this->message->withUri($uri)
+        );
         $this->expectException(\HttpSignatures\Exception::class);
         $ss->string();
-    }
-
-    private function message($path)
-    {
-        return new Request('GET', $path, ['date' => 'Mon, 28 Jul 2014 15:39:13 -0700']);
     }
 
     private function symfonyMessage($path)
@@ -84,9 +102,35 @@ class SigningStringTest extends TestCase
         $symfonyRequest = SymfonyRequest::create($path, 'GET');
         $symfonyRequest->headers->replace(['date' => 'Mon, 28 Jul 2014 15:39:13 -0700']);
 
-        $psr7Factory = new DiactorosFactory();
-        $psrRequest = $psr7Factory->createRequest($symfonyRequest)->withRequestTarget($symfonyRequest->getRequestUri());
+        $psrRequest = $this->psr7Factory
+          ->createRequest($symfonyRequest)
+          ->withRequestTarget($symfonyRequest
+          ->getRequestUri());
 
         return $psrRequest;
+    }
+
+    public function testDuplicateHeader()
+    {
+        $headerList = new HeaderList(['date']);
+        $message = $this->message->withAddedHeader('Date', 'another date');
+        $ss = new SigningString($headerList, $message);
+
+        $this->assertEquals(
+            'date: Mon, 28 Jul 2014 15:39:13 -0700, another date',
+            $ss->string()
+        );
+    }
+
+    public function testEmptyHeaders()
+    {
+        // Not cryptographically useful, but strictly required.
+        $headerList = new HeaderList([]);
+        $ss = new SigningString($headerList, $this->message);
+
+        $this->assertEquals(
+            '',
+            $ss->string()
+        );
     }
 }

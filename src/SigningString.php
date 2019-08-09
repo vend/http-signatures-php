@@ -35,10 +35,14 @@ class SigningString
      */
     private function lines()
     {
-        return array_map(
-            [$this, 'line'],
-            $this->headerList->names
-        );
+        if (is_null($this->headerList->names)) {
+            return [];
+        } else {
+            return array_map(
+              [$this, 'line'],
+              $this->headerList->names
+          );
+        }
     }
 
     /**
@@ -67,9 +71,19 @@ class SigningString
     private function headerValue($name)
     {
         if ($this->message->hasHeader($name)) {
-            $header = $this->message->getHeader($name);
+            $header = '';
+            $values = $this->message->getHeader($name);
+            while (sizeof($values) > 0) {
+                $header = $header.$values[0];
+                array_shift($values);
+                if (sizeof($values) > 0) {
+                    $header = $header.', ';
+                }
+            }
+            // $header = $this->message->getHeader($name);
 
-            return end($header);
+            return $header;
+        // return end($header);
         } else {
             throw new SignedHeaderNotPresentException("Header '$name' not in message");
         }

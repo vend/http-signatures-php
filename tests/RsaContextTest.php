@@ -23,13 +23,12 @@ class RsaContextTest extends TestCase
             'algorithm' => 'rsa-sha256',
             'headers' => ['(request-target)', 'date'],
         ]);
+        $this->message = new Request('GET', '/path?query=123', ['date' => 'today', 'accept' => 'llamas']);
     }
 
     public function testSha1Signer()
     {
-        $message = new Request('GET', '/path?query=123', ['date' => 'today', 'accept' => 'llamas']);
-
-        $message = $this->sha1context->signer()->sign($message);
+        $message = $this->sha1context->signer()->sign($this->message);
         $expectedSha1String = implode(',', [
             'keyId="rsa1"',
             'algorithm="rsa-sha1"',
@@ -51,9 +50,8 @@ class RsaContextTest extends TestCase
     public function testSha256Signer()
     {
         $expectedDigestHeader = 'SHA-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=';
-        $message = new Request('GET', '/path?query=123', ['date' => 'today', 'accept' => 'llamas']);
 
-        $signedMessage = $this->sha256context->signer()->sign($message);
+        $signedMessage = $this->sha256context->signer()->sign($this->message);
         $expectedSha256String = implode(',', [
             'keyId="rsa1"',
             'algorithm="rsa-sha256"',
@@ -71,18 +69,26 @@ class RsaContextTest extends TestCase
             $signedMessage->getHeader('Signature')[0]
         );
 
-        $signedWithDigestMessage = $this->sha256context->signer()->signWithDigest($message);
+        $signedWithDigestMessage = $this->sha256context->signer()->signWithDigest($this->message);
 
         $this->assertEquals(
             $expectedDigestHeader,
             $signedWithDigestMessage->getHeader('Digest')[0]
         );
 
-        $authorizedWithDigestMessage = $this->sha256context->signer()->authorizeWithDigest($message);
+        $authorizedWithDigestMessage = $this->sha256context->signer()->authorizeWithDigest($this->message);
 
         $this->assertEquals(
             $expectedDigestHeader,
             $authorizedWithDigestMessage->getHeader('Digest')[0]
+        );
+    }
+
+    public function testGetSigningString()
+    {
+        $this->assertEquals(
+          "(request-target): get /path?query=123\ndate: today",
+          $this->sha256context->signer()->getSigningString($this->message)
         );
     }
 
@@ -94,5 +100,25 @@ class RsaContextTest extends TestCase
               'algorithm' => 'rsa-sha224',
               'headers' => ['(request-target)', 'date'],
           ]);
+    }
+
+    public function testEmptyHeaders()
+    {
+        $emptyHeadersContext = new Context([
+            'keys' => ['rsa1' => TestKeys::rsaPrivateKey],
+            'algorithm' => 'rsa-sha256',
+            'headers' => [],
+        ]);
+
+        $signedMessage = $emptyHeadersContext->signer()->sign($this->message);
+        $this->assertEquals(
+          'keyId="rsa1",algorithm="rsa-sha256",signature="Mutm6x0apXqU6aQh36l'.
+          '+/yEU0kSzKt8tEy6nxhBXJIv0kP+z9MWH0k7CgsLLt4RcGmf5i6qnmPkkKZ5ndLUL'.
+          'FnXpFIQjs2aWaQ4Twq29no/acrkJA1S9zFJEIy9uI+UJurzlpWe3pTBdyAvF0PnMC'.
+          '4IQJ0f7QRyWjMCSmHGKEv7iZGmt9l1l1zbx7DHeuaLCj1AIZlwhvw0bg+uk7NrgFG'.
+          '2Vix1w707O/u8K3IrHFDDpbNBI2YmqklyAuoPtVe+DFlaC/G80ew3VyNU9lqNAQxL'.
+          'eD0/O05xNNdJ7xjaaAPdv0VXYwzC70aek1ZY1RKlSmDi6x5k/clmtcWsqNx1RJw=="',
+          $signedMessage->getHeader('Signature')[0]
+        );
     }
 }
