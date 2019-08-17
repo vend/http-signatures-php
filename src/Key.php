@@ -26,20 +26,52 @@ class Key
      * @param string       $id
      * @param string|array $secret
      */
-    public function __construct($id, $item)
+    public function __construct($id, $keys)
     {
         $this->id = $id;
-        if (Key::hasX509Certificate($item) || Key::hasPublicKey($item)) {
-            $publicKey = Key::getPublicKey($item);
-        } else {
-            $publicKey = null;
+        $publicKey = null;
+        $privateKey = null;
+        $secret = null;
+        if (!is_array($keys)) {
+            $keys = [$keys];
         }
-        if (Key::hasPrivateKey($item)) {
-            $privateKey = Key::getPrivateKey($item);
-        } else {
-            $privateKey = null;
+        foreach ($keys as $key) {
+            if (!Key::hasPKIKey($key)) {
+                if (0 != strpos($key, 'BEGIN')) {
+                    throw new KeyException("Unhandled PEM: '$key'", 1);
+                }
+                if (empty($secret)) {
+                    $secret = $key;
+                } else {
+                    throw new KeyException('Multiple secrets provided', 1);
+                }
+            } else {
+                $pkiKey = Key::getPKIKey($key);
+                switch ($pkiKey['type']) {
+              case 'public':
+                if (!empty($publicKey)) {
+                    throw new KeyException('Multiple public keys provided', 1);
+                }
+                $publicKey = $pkiKey['key'];
+                break;
+
+              case 'private':
+                if (!empty($privateKey)) {
+                    throw new KeyException('Multiple private keys provided', 1);
+                }
+                $privateKey = $pkiKey['key'];
+                break;
+
+              default:
+                throw new KeyException('Unhandled Error Processing Key', 1);
+                break;
+            }
+            }
         }
         if (($publicKey || $privateKey)) {
+            if (!empty($secret)) {
+                throw new KeyException("Input has secret(s) '".strpos($secret, 'BEGIN').$secret.' and PKI keys, cannot process', 1);
+            }
             $this->type = 'asymmetric';
             if ($publicKey && $privateKey) {
                 $publicKeyPEM = openssl_pkey_get_details($publicKey)['key'];
@@ -50,13 +82,40 @@ class Key
             }
             $this->privateKey = $privateKey;
             $this->publicKey = $publicKey;
-            $this->secret = null;
+            $this->algorithm = $pkiKey['algorithm'];
         } else {
             $this->type = 'secret';
-            $this->secret = $item;
-            $this->publicKey = null;
-            $this->privateKey = null;
+            $this->secret = $secret;
         }
+    }
+
+    public static function getPKIKey($item)
+    {
+        if (Key::isX509Certificate($item)) {
+            $key = Key::fromX509Certificate($item);
+            $type = 'public';
+        } elseif (Key::isPublicKey($item)) {
+            $key = Key::getPublicKey($item);
+            $type = 'public';
+        } elseif (Key::hasPrivateKey($item)) {
+            $key = Key::getPrivateKey($item);
+            $type = 'private';
+        } else {
+            throw new KeyException('getPKIKey() called on non-PKI item', 1);
+        }
+        $keyDetails = openssl_pkey_get_details($key);
+        if (array_key_exists('rsa', $keyDetails)) {
+            $algorithm = 'rsa';
+        } else {
+            $algorithm = implode(',', \array_keys($keyDetails));
+        }
+
+        return [
+        'type' => $type,
+        'key' => $key,
+        'algorithm' => $algorithm,
+      ];
+        // return [false,null];
     }
 
     /**
@@ -67,24 +126,15 @@ class Key
      *
      * @return resource|false
      */
-    public static function getPrivateKey($object)
+    private static function getPrivateKey($key)
     {
-        if (is_array($object)) {
-            foreach ($object as $candidateKey) {
-                $privateKey = Key::getPrivateKey($candidateKey);
-                if ($privateKey) {
-                    return $privateKey;
-                }
-            }
-        } else {
-            // OpenSSL libraries don't have detection methods, so try..catch
-            try {
-                $privateKey = openssl_get_privatekey($object);
+        // OpenSSL libraries don't have detection methods, so try..catch
+        try {
+            $privateKey = openssl_get_privatekey($key);
 
-                return $privateKey;
-            } catch (\Exception $e) {
-                return null;
-            }
+            return $privateKey;
+        } catch (\Exception $e) {
+            return null;
         }
     }
 
@@ -96,7 +146,7 @@ class Key
      *
      * @return resource|false
      */
-    public static function getPublicKey($object)
+    private static function getPublicKey($object)
     {
         if (is_array($object)) {
             // If we implement key rotation in future, this should add to a collection
@@ -116,6 +166,13 @@ class Key
                 return null;
             }
         }
+    }
+
+    public static function fromX509Certificate($certificate)
+    {
+        $publicKey = openssl_get_publickey($certificate);
+
+        return $publicKey;
     }
 
     /**
@@ -181,11 +238,27 @@ class Key
     }
 
     /**
-     * @return string 'secret' for HMAC or 'asymmetric'
+     * @return string 'secret' for HMAC or 'asymmetric' for RSA/EC
      */
     public function getType()
     {
         return $this->type;
+    }
+
+    public function getAlgorithm()
+    {
+        switch ($this->type) {
+          case 'secret':
+            return 'hmac';
+            break;
+
+          case 'asymmetric':
+            return $this->algorithm;
+            break;
+          default:
+            throw new KeyException("Unknown key type '{$this->type}' fetching algorithm", 1);
+            break;
+        }
     }
 
     /**
@@ -195,49 +268,61 @@ class Key
      *
      * @return bool
      */
-    public static function hasX509Certificate($object)
+    public static function isX509Certificate($object)
     {
-        if (is_array($object)) {
-            foreach ($object as $candidateCertificate) {
-                $result = Key::hasX509Certificate($candidateCertificate);
-                if ($result) {
-                    return $result;
-                }
-            }
-        } else {
-            // OpenSSL libraries don't have detection methods, so try..catch
-            try {
-                // OpenSSL emits a warning if the input does not parse, so silence
-                // it temporarily
-                $errorLevel = error_reporting(E_ERROR);
-                openssl_x509_export($object, $null);
-                error_reporting($errorLevel);
+        try {
+            $errorLevel = error_reporting(E_ERROR);
+            openssl_x509_export($object, $test);
+            error_reporting($errorLevel);
 
-                return true;
-            } catch (\Exception $e) {
-                return false;
-            }
+            return  !empty($test);
+        } catch (\Exception $e) {
+            error_reporting($errorLevel);
+
+            return false;
         }
     }
 
-    /**
-     * Test if $object is, points to or contains, PEM-format Public Key.
-     *
-     * @param string|array $object PEM-format Public Key or file path to one
-     *
-     * @return bool
-     */
+    public static function isPublicKey($object)
+    {
+        return
+        Key::hasPublicKey($object) &&
+        !Key::hasPrivateKey($object) &&
+        !Key::isX509Certificate($object)
+      ;
+    }
+
+    public static function isPrivateKey($object)
+    {
+        return
+        Key::hasPrivateKey($object) &&
+        !Key::isPublicKey($object)
+      ;
+    }
+
+    public static function hasPKIKey($item)
+    {
+        return
+        Key::hasPublicKey($item) ||
+        Key::hasPrivateKey($item)
+      ;
+    }
+
     public static function hasPublicKey($object)
     {
-        if (is_array($object)) {
-            foreach ($object as $candidatePublicKey) {
-                $result = Key::hasPublicKey($candidatePublicKey);
-                if ($result) {
-                    return $result;
-                }
-            }
-        } else {
-            return false == !openssl_pkey_get_public($object);
+        if (Key::isX509Certificate($object)) {
+            return true;
+        }
+        try {
+            $errorLevel = error_reporting(E_ERROR);
+            $result = openssl_pkey_get_public($object);
+            error_reporting($errorLevel);
+
+            return  !empty($result);
+        } catch (\Exception $e) {
+            error_reporting($errorLevel);
+
+            return false;
         }
     }
 
@@ -250,15 +335,24 @@ class Key
      */
     public static function hasPrivateKey($object)
     {
-        if (is_array($object)) {
-            foreach ($object as $candidatePrivateKey) {
-                $result = Key::hasPrivateKey($candidatePrivateKey);
-                if ($result) {
-                    return $result;
-                }
-            }
-        } else {
-            return  false != openssl_pkey_get_private($object);
+        try {
+            $errorLevel = error_reporting(E_ERROR);
+            $result = openssl_pkey_get_private($object);
+            error_reporting($errorLevel);
+
+            return  !empty($result);
+        } catch (\Exception $e) {
+            error_reporting($errorLevel);
+
+            return false;
         }
+    }
+
+    public static function isPKIKey($item)
+    {
+        return
+        Key::isPrivateKey($item) ||
+        Key::isPublicKey($item)
+      ;
     }
 }
