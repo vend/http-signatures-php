@@ -36,7 +36,8 @@ class Key
             $keys = [$keys];
         }
         foreach ($keys as $key) {
-            if (!Key::hasPKIKey($key)) {
+            $pkiKey = Key::getPKIKeys($key);
+            if (!$pkiKey) {
                 if (0 != strpos($key, 'BEGIN')) {
                     throw new KeyException("Unhandled PEM: '$key'", 1);
                 }
@@ -46,40 +47,32 @@ class Key
                     throw new KeyException('Multiple secrets provided', 1);
                 }
             } else {
-                $pkiKey = Key::getPKIKey($key);
-                switch ($pkiKey['type']) {
-              case 'public':
-                if (!empty($publicKey)) {
-                    throw new KeyException('Multiple public keys provided', 1);
+                if (!empty($pkiKey['public']) && !empty($publicKey)) {
+                    if (
+                    openssl_pkey_get_details($publicKey)['key'] !=
+                    openssl_pkey_get_details($pkiKey['public'])['key']
+                  ) {
+                        throw new KeyException('Multiple different public keys provided', 1);
+                    }
+                } elseif (!empty($pkiKey['private']) && !empty($privateKey)) {
+                    if (
+                    openssl_pkey_get_details($privateKey)['key'] !=
+                    openssl_pkey_get_details($pkiKey['private'])['key']
+                  ) {
+                        throw new KeyException('Multiple different private keys provided', 1);
+                    }
+                } elseif (!empty($pkiKey['public']) && empty($publicKey)) {
+                    $publicKey = $pkiKey['public'];
+                } elseif (!empty($pkiKey['private']) && empty($privateKey)) {
+                    $privateKey = $pkiKey['private'];
                 }
-                $publicKey = $pkiKey['key'];
-                break;
-
-              case 'private':
-                if (!empty($privateKey)) {
-                    throw new KeyException('Multiple private keys provided', 1);
-                }
-                $privateKey = $pkiKey['key'];
-                break;
-
-              default:
-                throw new KeyException('Unhandled Error Processing Key', 1);
-                break;
-            }
             }
         }
         if (($publicKey || $privateKey)) {
             if (!empty($secret)) {
-                throw new KeyException("Input has secret(s) '".strpos($secret, 'BEGIN').$secret.' and PKI keys, cannot process', 1);
+                throw new KeyException(!empty($secret).'Input has secret(s) and PKI keys, cannot process', 1);
             }
             $this->type = 'asymmetric';
-            if ($publicKey && $privateKey) {
-                $publicKeyPEM = openssl_pkey_get_details($publicKey)['key'];
-                $privateKeyPublicPEM = openssl_pkey_get_details($privateKey)['key'];
-                if ($privateKeyPublicPEM != $publicKeyPEM) {
-                    throw new KeyException('Supplied Certificate and Key are not related');
-                }
-            }
             $this->privateKey = $privateKey;
             $this->publicKey = $publicKey;
             $this->algorithm = $pkiKey['algorithm'];
@@ -89,33 +82,32 @@ class Key
         }
     }
 
-    public static function getPKIKey($item)
+    public static function getPKIKeys($item)
     {
+        $key['public'] = null;
+        $key['private'] = null;
         if (Key::isX509Certificate($item)) {
-            $key = Key::fromX509Certificate($item);
-            $type = 'public';
+            $key['public'] = Key::fromX509Certificate($item);
         } elseif (Key::isPublicKey($item)) {
-            $key = Key::getPublicKey($item);
-            $type = 'public';
+            $key['public'] = Key::getPublicKey($item);
         } elseif (Key::hasPrivateKey($item)) {
-            $key = Key::getPrivateKey($item);
-            $type = 'private';
+            $key['private'] = Key::getPrivateKey($item);
         } else {
-            throw new KeyException('getPKIKey() called on non-PKI item', 1);
+            return false;
         }
-        $keyDetails = openssl_pkey_get_details($key);
-        if (array_key_exists('rsa', $keyDetails)) {
-            $algorithm = 'rsa';
+        if (!empty($key['public'])) {
+            $keyDetails = openssl_pkey_get_details($key['public']);
         } else {
-            $algorithm = implode(',', \array_keys($keyDetails));
+            $keyDetails = openssl_pkey_get_details($key['private']);
+        }
+        // $keyDetails = openssl_pkey_get_details($key);
+        if (array_key_exists('rsa', $keyDetails)) {
+            $key['algorithm'] = 'rsa';
+        } else {
+            $key['algorithm'] = implode(',', \array_keys($keyDetails));
         }
 
-        return [
-        'type' => $type,
-        'key' => $key,
-        'algorithm' => $algorithm,
-      ];
-        // return [false,null];
+        return $key;
     }
 
     /**
