@@ -137,9 +137,9 @@ class SigningStringTest extends TestCase
     public function testEmptyHeaderVaue()
     {
         $expectedSigningString =
-        "(request-target): get /path\n" .
-        "thisisempty: \n" .
-        "date: Mon, 28 Jul 2014 15:39:13 -0700";
+        "(request-target): get /path\n".
+        "thisisempty: \n".
+        'date: Mon, 28 Jul 2014 15:39:13 -0700';
 
         $headerList = new HeaderList(['(request-target)', 'thisisempty', 'date']);
         $producedSigningStringObj = new SigningString(
