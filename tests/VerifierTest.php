@@ -108,7 +108,7 @@ class VerifierTest extends TestCase
     {
         $this->assertTrue($this->verifier->isSigned($this->signedMessage));
         $this->assertEquals(
-          "Signed with SigningString 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
+          "Message SigningString: 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
           $this->verifier->getStatus()[0]
         );
         $this->verifier->isSigned($this->signedMessage);
@@ -122,7 +122,7 @@ class VerifierTest extends TestCase
     {
         $this->assertTrue($this->verifier->isAuthorized($this->authorizedMessage));
         $this->assertEquals(
-          "Authorized with SigningString 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
+          "Message SigningString: 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
           $this->verifier->getStatus()[0]
         );
         $this->verifier->isAuthorized($this->authorizedMessage);
@@ -288,7 +288,7 @@ class VerifierTest extends TestCase
     {
         $this->assertTrue($this->verifier->isSigned($this->signedMessage));
         $this->assertEquals(
-        "Signed with SigningString 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
+        "Message SigningString: 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
         $this->verifier->getStatus()[0]
       );
     }
