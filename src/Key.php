@@ -28,6 +28,11 @@ class Key
      */
     public function __construct($id, $keys)
     {
+        $this->opensslVersion = explode(' ', OPENSSL_VERSION_TEXT)[1];
+        $this->opensslMajor = explode('.', $this->opensslVersion)[0];
+        $this->opensslMinor = explode('.', $this->opensslVersion)[1];
+        $this->opensslPatch = explode('.', $this->opensslVersion)[2];
+
         $this->id = $id;
         $publicKey = null;
         $privateKey = null;
@@ -39,7 +44,10 @@ class Key
             $pkiKey = Key::getPKIKeys($key);
             if (!$pkiKey) {
                 if (0 != strpos($key, 'BEGIN')) {
-                    throw new KeyException("Unhandled PEM: '$key'", 1);
+                    throw new KeyException(
+                      'Input looks like PEM but key not understood using OpenSSL '.
+                      $this->opensslVersion.': '.$key,
+                      1);
                 }
                 if (empty($secret)) {
                     $secret = $key;
@@ -92,12 +100,12 @@ class Key
         $key['public'] = null;
         $key['private'] = null;
         $key['curve'] = null;
-        if (Key::isX509Certificate($item)) {
+        if (Key::hasPrivateKey($item)) {
+            $key['private'] = Key::getPrivateKey($item);
+        } elseif (Key::isX509Certificate($item)) {
             $key['public'] = Key::fromX509Certificate($item);
         } elseif (Key::isPublicKey($item)) {
             $key['public'] = Key::getPublicKey($item);
-        } elseif (Key::hasPrivateKey($item)) {
-            $key['private'] = Key::getPrivateKey($item);
         } else {
             return false;
         }
@@ -115,12 +123,13 @@ class Key
         );
         if (sizeof($type) > 1) {
             throw new KeyException(
-            "Unknown key semantics, multiple recignised key types found: '".
+            "Unknown key semantics, multiple recognised key types found: '".
             implode(','.$type)."'",
             1
           );
         } elseif (0 == sizeof($type)) {
-            throw new KeyException('Unknown key semantics, no recognised key types found', 1);
+            throw new KeyException('Unknown key semantics, no recognised key types found: '.
+            implode(',', array_keys(openssl_pkey_get_details($key['private']))).':'.$item, 1);
         }
 
         $key['type'] = array_keys($keyDetails)[0];
@@ -277,21 +286,7 @@ class Key
 
     public function getCurve()
     {
-        if ('asymmetric' == !$this->class) {
-            switch ($this->class) {
-          case 'secret':
-            return 'hmac';
-            break;
-
-          case 'asymmetric':
-            return $this->algorithm;
-            break;
-
-          default:
-            throw new KeyException("Unknown key class '{$this->class}' fetching algorithm", 1);
-            break;
-        }
-        }
+        return $this->curve;
     }
 
     /**
