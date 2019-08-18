@@ -26,6 +26,12 @@ abstract class Algorithm
         case 'rsa-sha256':
             return new RsaAlgorithm('sha256');
             break;
+        case 'ec-sha1':
+            return new EcAlgorithm('sha1');
+            break;
+        case 'ec-sha256':
+            return new EcAlgorithm('sha256');
+            break;
         default:
             throw new AlgorithmException("No algorithm named '$name'");
             break;
