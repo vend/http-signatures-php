@@ -47,7 +47,7 @@ class RsaAlgorithm implements AlgorithmInterface
     {
         $algo = $this->getRsaHashAlgo($this->digestName);
 
-        return 1 == openssl_verify($message, base64_decode($signature), $verifyingKey, $algo);
+        return 1 === openssl_verify($message, base64_decode($signature), $verifyingKey, $algo);
     }
 
     private function getRsaHashAlgo($digestName)
