@@ -12,7 +12,8 @@ class EcSignerTest extends TestCase
 
     public function setUp()
     {
-        $this->p256PrivateKey = file_get_contents(__DIR__.'/keys/prime256v1.named.key');
+        $p256KeyFile = __DIR__.'/keys/prime256v1.named.key';
+        $this->p256PrivateKey = file_get_contents($p256KeyFile);
         $this->sha1context = new Context([
             'keys' => ['prime256v1' => $this->p256PrivateKey],
             'algorithm' => 'ec-sha1',
@@ -23,7 +24,11 @@ class EcSignerTest extends TestCase
             'algorithm' => 'ec-sha256',
             'headers' => ['(request-target)', 'date'],
         ]);
-        $this->message = new Request('GET', '/path?query=123', ['date' => 'today', 'accept' => 'llamas']);
+        $this->message = new Request(
+          'GET',
+          '/path?query=123',
+          ['date' => 'today', 'accept' => 'llamas']
+        );
     }
 
     public function testSha1Signer()
