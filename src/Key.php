@@ -72,20 +72,26 @@ class Key
             if (!empty($secret)) {
                 throw new KeyException(!empty($secret).'Input has secret(s) and PKI keys, cannot process', 1);
             }
-            $this->type = 'asymmetric';
+            $this->class = 'asymmetric';
             $this->privateKey = $privateKey;
             $this->publicKey = $publicKey;
-            $this->algorithm = $pkiKey['algorithm'];
+            $this->type = $pkiKey['type'];
+            if ('ec' == $pkiKey['type']) {
+                $this->curve = $pkiKey['curve'];
+            }
         } else {
-            $this->type = 'secret';
+            $this->class = 'secret';
             $this->secret = $secret;
         }
     }
 
     public static function getPKIKeys($item)
     {
+        $keyTypes = ['rsa', 'ec', 'dsa'];
+        $eCCurves = [];
         $key['public'] = null;
         $key['private'] = null;
+        $key['curve'] = null;
         if (Key::isX509Certificate($item)) {
             $key['public'] = Key::fromX509Certificate($item);
         } elseif (Key::isPublicKey($item)) {
@@ -100,11 +106,26 @@ class Key
         } else {
             $keyDetails = openssl_pkey_get_details($key['private']);
         }
-        // $keyDetails = openssl_pkey_get_details($key);
-        if (array_key_exists('rsa', $keyDetails)) {
-            $key['algorithm'] = 'rsa';
-        } else {
-            $key['algorithm'] = implode(',', \array_keys($keyDetails));
+        unset($keyDetails['key']);
+        unset($keyDetails['bits']);
+        unset($keyDetails['type']);
+        $type = array_intersect(
+          $keyTypes,
+          array_keys($keyDetails)
+        );
+        if (sizeof($type) > 1) {
+            throw new KeyException(
+            "Unknown key semantics, multiple recignised key types found: '".
+            implode(','.$type)."'",
+            1
+          );
+        } elseif (0 == sizeof($type)) {
+            throw new KeyException('Unknown key semantics, no recognised key types found', 1);
+        }
+
+        $key['type'] = array_keys($keyDetails)[0];
+        if ('ec' == $key['type']) {
+            $key['curve'] = $keyDetails[$key['type']]['curve_name'];
         }
 
         return $key;
@@ -188,7 +209,7 @@ class Key
      */
     public function getVerifyingKey()
     {
-        switch ($this->type) {
+        switch ($this->class) {
         case 'asymmetric':
             if ($this->publicKey) {
                 return openssl_pkey_get_details($this->publicKey)['key'];
@@ -199,7 +220,7 @@ class Key
         case 'secret':
             return $this->secret;
         default:
-            throw new KeyException("Unknown key type $this->type");
+            throw new KeyException("Unknown key class $this->class");
         }
     }
 
@@ -212,7 +233,7 @@ class Key
      */
     public function getSigningKey()
     {
-        switch ($this->type) {
+        switch ($this->class) {
         case 'asymmetric':
             if ($this->privateKey) {
                 openssl_pkey_export($this->privateKey, $pem);
@@ -225,21 +246,39 @@ class Key
         case 'secret':
             return $this->secret;
         default:
-            throw new KeyException("Unknown key type $this->type");
+            throw new KeyException("Unknown key class $this->class");
         }
     }
 
     /**
      * @return string 'secret' for HMAC or 'asymmetric' for RSA/EC
      */
-    public function getType()
+    public function getClass()
     {
-        return $this->type;
+        return $this->class;
     }
 
-    public function getAlgorithm()
+    public function getType()
     {
-        switch ($this->type) {
+        switch ($this->class) {
+          case 'secret':
+            return 'hmac';
+            break;
+
+          case 'asymmetric':
+            return $this->type;
+            break;
+
+          default:
+            throw new KeyException("Unknown key class '{$this->class}' fetching algorithm", 1);
+            break;
+        }
+    }
+
+    public function getCurve()
+    {
+        if ('asymmetric' == !$this->class) {
+            switch ($this->class) {
           case 'secret':
             return 'hmac';
             break;
@@ -247,9 +286,11 @@ class Key
           case 'asymmetric':
             return $this->algorithm;
             break;
+
           default:
-            throw new KeyException("Unknown key type '{$this->type}' fetching algorithm", 1);
+            throw new KeyException("Unknown key class '{$this->class}' fetching algorithm", 1);
             break;
+        }
         }
     }
 

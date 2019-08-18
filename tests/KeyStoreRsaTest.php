@@ -34,8 +34,8 @@ class KeyStoreRsaTest extends TestCase
         // $ks = new KeyStore($keySpec);
         $publicKey = $key->getVerifyingKey();
         // $publicKey = $ks->fetch('rsaCert')->getVerifyingKey();
-        // $this->assertEquals('asymmetric', $ks->fetch('rsaCert')->getType());
-        $this->assertEquals('asymmetric', $key->getType());
+        // $this->assertEquals('asymmetric', $ks->fetch('rsaCert')->getClass());
+        $this->assertEquals('asymmetric', $key->getClass());
         $this->assertEquals(TestKeys::rsaPublicKey, $publicKey);
     }
 
@@ -51,7 +51,7 @@ class KeyStoreRsaTest extends TestCase
 
         $ks = new KeyStore($keySpec);
         $publicKey = $ks->fetch('rsaPubKey')->getVerifyingKey();
-        $this->assertEquals('asymmetric', $ks->fetch('rsaPubKey')->getType());
+        $this->assertEquals('asymmetric', $ks->fetch('rsaPubKey')->getClass());
         $this->assertEquals(TestKeys::rsaPublicKey, $publicKey);
     }
 
@@ -67,11 +67,11 @@ class KeyStoreRsaTest extends TestCase
         $key = new Key('TestRSAKey', TestKeys::rsaPrivateKey);
         $this->assertEquals(
           'asymmetric',
-          $key->getType()
+          $key->getClass()
         );
         $this->assertEquals(
           'rsa',
-          $key->getAlgorithm()
+          $key->getType()
         );
         $this->assertEquals(
           $expectedSigningKey,
@@ -86,7 +86,7 @@ class KeyStoreRsaTest extends TestCase
         // $key = $ks->fetch('rsakey');
         openssl_pkey_export($key->getSigningKey(), $keyStoreSigningKey);
         $this->assertEquals(['rsakey', $this->testRsaPrivateKeyPEM, null, 'asymmetric'], [
-          $key->getId(), $keyStoreSigningKey, $key->getVerifyingKey(), $key->getType(), ]);
+          $key->getId(), $keyStoreSigningKey, $key->getVerifyingKey(), $key->getClass(), ]);
     }
 
     public function testFetchRsaVerifyingKeyFromCertificateSuccess()
@@ -95,7 +95,7 @@ class KeyStoreRsaTest extends TestCase
         // $key = $ks->fetch('rsacert');
         $keyStoreVerifyingKey = $key->getVerifyingKey();
         $this->assertEquals(['rsacert', null, $this->testRsaPublicKeyPEM, 'asymmetric'], [
-          $key->getId(), $key->getSigningKey(), $keyStoreVerifyingKey, $key->getType(), ]);
+          $key->getId(), $key->getSigningKey(), $keyStoreVerifyingKey, $key->getClass(), ]);
     }
 
     public function testFetchRsaVerifyingKeyFromPublicKeySuccess()
@@ -105,7 +105,7 @@ class KeyStoreRsaTest extends TestCase
         $key = new Key('rsapubkey', TestKeys::rsaPublicKey);
         $keyStoreVerifyingKey = $key->getVerifyingKey();
         $this->assertEquals(['rsapubkey', null, $this->testRsaPublicKeyPEM, 'asymmetric'], [
-          $key->getId(), $key->getSigningKey(), $keyStoreVerifyingKey, $key->getType(), ]);
+          $key->getId(), $key->getSigningKey(), $keyStoreVerifyingKey, $key->getClass(), ]);
     }
 
     public function testFetchRsaBothSuccess()
@@ -114,7 +114,7 @@ class KeyStoreRsaTest extends TestCase
         $keyStoreVerifyingKey = $key->getVerifyingKey();
         $keyStoreSigningKey = $key->getSigningKey();
         $this->assertEquals(['rsaboth', $this->testRsaPrivateKeyPEM, $this->testRsaPublicKeyPEM, 'asymmetric'], [
-          $key->getId(), $keyStoreSigningKey, $keyStoreVerifyingKey, $key->getType(), ]);
+          $key->getId(), $keyStoreSigningKey, $keyStoreVerifyingKey, $key->getClass(), ]);
     }
 
     public function testFetchRsaBothSuccessSwitched()
@@ -124,7 +124,7 @@ class KeyStoreRsaTest extends TestCase
         $keyStoreVerifyingKey = $key->getVerifyingKey();
         $keyStoreSigningKey = $key->getSigningKey();
         $this->assertEquals(['rsabothswitch', $this->testRsaPrivateKeyPEM, $this->testRsaPublicKeyPEM, 'asymmetric'], [
-          $key->getId(), $keyStoreSigningKey, $keyStoreVerifyingKey, $key->getType(), ]);
+          $key->getId(), $keyStoreSigningKey, $keyStoreVerifyingKey, $key->getClass(), ]);
     }
 
     // TODO: RSA mismatched keys not detected

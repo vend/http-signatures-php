@@ -21,6 +21,6 @@ class KeyStoreHmacTest extends TestCase
         $ks = new KeyStore(['hmacsecret' => 'ThisIsASecretKey']);
         $key = $ks->fetch('hmacsecret');
         $this->assertEquals(['hmacsecret', 'ThisIsASecretKey', 'ThisIsASecretKey', 'secret'], [
-          $key->getId(), $key->getVerifyingKey(), $key->getSigningKey(), $key->getType(), ]);
+          $key->getId(), $key->getVerifyingKey(), $key->getSigningKey(), $key->getClass(), ]);
     }
 }
