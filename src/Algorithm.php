@@ -26,6 +26,12 @@ abstract class Algorithm
         case 'rsa-sha256':
             return new RsaAlgorithm('sha256');
             break;
+        case 'dsa-sha1':
+            return new DsaAlgorithm('sha1');
+            break;
+        case 'dsa-sha256':
+            return new DsaAlgorithm('sha256');
+            break;
         case 'ec-sha1':
             return new EcAlgorithm('sha1');
             break;
