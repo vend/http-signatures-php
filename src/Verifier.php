@@ -35,7 +35,7 @@ class Verifier
             $verification = new Verification($message, $this->keyStore, 'Signature');
             $result = $verification->verify();
             $this->status[] =
-              "Signed with SigningString '".
+              "Message SigningString: '".
               base64_encode($verification->getSigningString()).
               "'";
 
@@ -88,7 +88,7 @@ class Verifier
             $verification = new Verification($message, $this->keyStore, 'Authorization');
             $result = $verification->verify();
             $this->status[] =
-              "Authorized with SigningString '".
+              "Message SigningString: '".
               base64_encode($verification->getSigningString()).
               "'";
 

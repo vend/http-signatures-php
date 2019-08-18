@@ -2,7 +2,7 @@
 
 namespace HttpSignatures;
 
-class RsaAlgorithm implements AlgorithmInterface
+class EcAlgorithm implements AlgorithmInterface
 {
     /** @var string */
     private $digestName;
@@ -20,7 +20,7 @@ class RsaAlgorithm implements AlgorithmInterface
      */
     public function name()
     {
-        return sprintf('rsa-%s', $this->digestName);
+        return sprintf('ec-%s', $this->digestName);
     }
 
     /**
@@ -33,7 +33,7 @@ class RsaAlgorithm implements AlgorithmInterface
      */
     public function sign($signingKey, $data)
     {
-        $algo = $this->getRsaHashAlgo($this->digestName);
+        $algo = $this->getEcHashAlgo($this->digestName);
         if (!openssl_get_privatekey($signingKey)) {
             throw new AlgorithmException("OpenSSL doesn't understand the supplied key (not valid or not found)");
         }
@@ -45,12 +45,12 @@ class RsaAlgorithm implements AlgorithmInterface
 
     public function verify($message, $signature, $verifyingKey)
     {
-        $algo = $this->getRsaHashAlgo($this->digestName);
+        $algo = $this->getEcHashAlgo($this->digestName);
 
         return 1 === openssl_verify($message, base64_decode($signature), $verifyingKey, $algo);
     }
 
-    private function getRsaHashAlgo($digestName)
+    private function getEcHashAlgo($digestName)
     {
         switch ($digestName) {
         case 'sha256':

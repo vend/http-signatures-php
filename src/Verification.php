@@ -68,7 +68,7 @@ class Verification
     {
         try {
             $key = $this->key();
-            switch ($key->getType()) {
+            switch ($key->getClass()) {
                 case 'secret':
                   $result = hash_equals(
                     $this->expectedSignature()->string(),
