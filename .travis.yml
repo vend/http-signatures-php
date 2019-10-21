@@ -8,6 +8,7 @@ php:
   - "7.3"
 
 install:
+  - composer config -g github-oauth.github.com "$GITHUB_API_KEY"
   - ./tools/strip-reference-deps.sh
   - composer require --no-update symfony/http-foundation $SYMFONY_VERSION; composer install
 
