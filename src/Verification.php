@@ -86,7 +86,7 @@ class Verification
                         $this->message
                     );
                     $hashAlgo = explode('-', $this->parameter('algorithm'))[1];
-                    $algorithm = new RsaAlgorithm($hashAlgo);
+                    $algorithm = Algorithm::create($this->parameter('algorithm'));
                     $result = $algorithm->verify(
                         $signedString->string(),
                         $this->parameter('signature'),
