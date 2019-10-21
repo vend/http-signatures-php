@@ -30,8 +30,6 @@ class RsaAlgorithm implements AlgorithmInterface
      * @param string $data
      *
      * @return string
-     *
-     * @throws \HttpSignatures\AlgorithmException
      */
     public function sign($signingKey, $data)
     {
@@ -40,25 +38,28 @@ class RsaAlgorithm implements AlgorithmInterface
         $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
         $rsa->setHash($this->digestName);
         $signature = $rsa->sign($data);
+
         return $signature;
     }
 
     public function verify($message, $signature, $verifyingKey)
     {
-        $algo = $this->getRsaHashAlgo($this->digestName);
+        $rsa = new RSA();
+        $rsa->loadKey($verifyingKey);
+        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
+        $rsa->setHash($this->digestName);
+        try {
+            $valid = $rsa->verify($message, base64_decode($signature));
 
-        return 1 === openssl_verify($message, base64_decode($signature), $verifyingKey, $algo);
-    }
-
-    private function getRsaHashAlgo($digestName)
-    {
-        switch ($digestName) {
-        case 'sha256':
-            return OPENSSL_ALGO_SHA256;
-        case 'sha1':
-            return OPENSSL_ALGO_SHA1;
-        default:
-            throw new HttpSignatures\AlgorithmException($digestName.' is not a supported hash format');
-      }
+            return $valid;
+        } catch (\Exception $e) {
+            if ('Invalid signature' != $e->getMessage()) {
+                // Unhandled error state
+                throw $e;
+            } else {
+                // Tolerate malformed signature
+                return false;
+            }
+        }
     }
 }
