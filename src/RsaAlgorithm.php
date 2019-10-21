@@ -2,6 +2,8 @@
 
 namespace HttpSignatures;
 
+use phpseclib\Crypt\RSA;
+
 class RsaAlgorithm implements AlgorithmInterface
 {
     /** @var string */
@@ -33,13 +35,11 @@ class RsaAlgorithm implements AlgorithmInterface
      */
     public function sign($signingKey, $data)
     {
-        $algo = $this->getRsaHashAlgo($this->digestName);
-        if (!openssl_get_privatekey($signingKey)) {
-            throw new AlgorithmException("OpenSSL doesn't understand the supplied key (not valid or not found)");
-        }
-        $signature = '';
-        openssl_sign($data, $signature, $signingKey, $algo);
-
+        $rsa = new RSA();
+        $rsa->loadKey($signingKey);
+        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
+        $rsa->setHash($this->digestName);
+        $signature = $rsa->sign($data);
         return $signature;
     }
 
