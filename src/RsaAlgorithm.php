@@ -3,6 +3,7 @@
 namespace HttpSignatures;
 
 use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\PublicKeyLoader;
 
 class RsaAlgorithm implements AlgorithmInterface
 {
@@ -33,10 +34,9 @@ class RsaAlgorithm implements AlgorithmInterface
      */
     public function sign($signingKey, $data)
     {
-        $rsa = new RSA();
-        $rsa->loadKey($signingKey);
-        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
-        $rsa->setHash($this->digestName);
+        $rsa = PublicKeyLoader::load($signingKey)
+          ->withHash($this->digestName)
+          ->withPadding(RSA::SIGNATURE_PKCS1);
         $signature = $rsa->sign($data);
 
         return $signature;
@@ -44,10 +44,9 @@ class RsaAlgorithm implements AlgorithmInterface
 
     public function verify($message, $signature, $verifyingKey)
     {
-        $rsa = new RSA();
-        $rsa->loadKey($verifyingKey);
-        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
-        $rsa->setHash($this->digestName);
+        $rsa = PublicKeyLoader::load($verifyingKey)
+          ->withHash($this->digestName)
+          ->withPadding(RSA::SIGNATURE_PKCS1);
         try {
             $valid = $rsa->verify($message, base64_decode($signature));
 
