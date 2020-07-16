@@ -44,10 +44,7 @@ class Key
             $pkiKey = Key::getPKIKeys($key);
             if (!$pkiKey) {
                 if (0 != strpos($key, 'BEGIN')) {
-                    throw new KeyException(
-                      'Input looks like PEM but key not understood using OpenSSL '.
-                      $this->opensslVersion.': '.$key,
-                      1);
+                    throw new KeyException('Input looks like PEM but key not understood using OpenSSL '.$this->opensslVersion.': '.$key, 1);
                 }
                 if (empty($secret)) {
                     $secret = $key;
@@ -122,14 +119,9 @@ class Key
           array_keys($keyDetails)
         );
         if (sizeof($type) > 1) {
-            throw new KeyException(
-            "Unknown key semantics, multiple recognised key types found: '".
-            implode(','.$type)."'",
-            1
-          );
+            throw new KeyException("Unknown key semantics, multiple recognised key types found: '".implode(','.$type)."'", 1);
         } elseif (0 == sizeof($type)) {
-            throw new KeyException('Unknown key semantics, no recognised key types found: '.
-            implode(',', array_keys(openssl_pkey_get_details($key['private']))).':'.$item, 1);
+            throw new KeyException('Unknown key semantics, no recognised key types found: '.implode(',', array_keys(openssl_pkey_get_details($key['private']))).':'.$item, 1);
         }
 
         $key['type'] = array_keys($keyDetails)[0];

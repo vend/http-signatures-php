@@ -16,10 +16,7 @@ class Signature
     private $signingString;
 
     /**
-     * @param RequestInterface   $message
-     * @param Key                $key
-     * @param AlgorithmInterface $algorithm
-     * @param HeaderList         $headerList
+     * @param RequestInterface $message
      */
     public function __construct($message, Key $key, AlgorithmInterface $algorithm, HeaderList $headerList)
     {

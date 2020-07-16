@@ -19,8 +19,7 @@ class Verification
     private $parameters;
 
     /**
-     * @param RequestInterface  $message
-     * @param KeyStoreInterface $keyStore
+     * @param RequestInterface $message
      */
     public function __construct($message, KeyStoreInterface $keyStore, $header)
     {

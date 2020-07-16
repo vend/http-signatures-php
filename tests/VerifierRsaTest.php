@@ -4,8 +4,8 @@ namespace HttpSignatures\tests;
 
 use GuzzleHttp\Psr7\Request;
 use HttpSignatures\KeyStore;
-use HttpSignatures\Verifier;
 use HttpSignatures\Tests\TestKeys;
+use HttpSignatures\Verifier;
 use PHPUnit\Framework\TestCase;
 
 class VerifierRsaTest extends TestCase

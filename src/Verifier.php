@@ -14,9 +14,6 @@ class Verifier
      */
     private $status;
 
-    /**
-     * @param KeyStoreInterface $keyStore
-     */
     public function __construct(KeyStoreInterface $keyStore)
     {
         $this->keyStore = $keyStore;
