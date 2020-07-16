@@ -2,8 +2,8 @@
 
 namespace HttpSignatures;
 
-use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\RSA;
 
 class RsaAlgorithm implements AlgorithmInterface
 {

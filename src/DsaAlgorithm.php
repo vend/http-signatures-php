@@ -2,7 +2,7 @@
 
 namespace HttpSignatures;
 
-use phpseclib\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\PublicKeyLoader;
 
 class DsaAlgorithm implements AlgorithmInterface
 {
