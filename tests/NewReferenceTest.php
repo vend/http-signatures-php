@@ -3,12 +3,12 @@
 namespace HttpSignatures\tests;
 
 use GuzzleHttp\Psr7\Request;
-use HttpSignatures\KeyStore;
-use HttpSignatures\Context;
-use HttpSignatures\Verifier;
-use HttpSignatures\SigningString;
 use HttpSignatures\BodyDigest;
+use HttpSignatures\Context;
 use HttpSignatures\HeaderList;
+use HttpSignatures\KeyStore;
+use HttpSignatures\SigningString;
+use HttpSignatures\Verifier;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -55,7 +55,8 @@ G6aFKaqQfOXKCyWoUiVknQJAXrlgySFci/2ueKlIE1QqIiLSZ8V8OlpFLRnb1pzI
 
     const referenceBody = '{"hello": "world"}';
     const referenceMethod = 'POST';
-    const referenceUri = '/foo?param=value&pet=dog';
+    const referenceUri = '/foo bar?test=this%3Dthat&actions=first%26second';
+    // const referenceUri = '/foo?param=value&pet=dog';
 
     // Header List if no headers parameter is specified
     const defaultHeaders = ['date'];
@@ -73,16 +74,16 @@ G6aFKaqQfOXKCyWoUiVknQJAXrlgySFci/2ueKlIE1QqIiLSZ8V8OlpFLRnb1pzI
 
     const basicTestSignatureHeaderValue =
       'keyId="Test",algorithm="rsa-sha256",'.
-      'headers="(request-target) host date",signature="qdx+H7PHHDZgy4y'.
-      '/Ahn9Tny9V3GP6YgBPyUXMmoxWtLbHpUnXS2mg2+SbrQDMCJypxBLSPQR2aAjn7'.
-      'ndmw2iicw3HMbe8VfEdKFYRqzic+efkb3nndiv/x1xSHDJWeSWkx3ButlYSuBsk'.
-      'Lu6kd9Fswtemr3lgdDEmn04swr2Os0="';
+      'headers="(request-target) host date",signature="RyXtFqKnLCDuy+RdHE'.
+      'Zm59xypzUfAeahim81NsxWExNFAJBs+DOcMaQjvW9+uKMl0lNrVFfZzP8eDzZ04UTA'.
+      '7YKaRq+CB9ybTZ3LHZHLlziJL3RmDDFFVZpc63klPw8Kju7C5ZvsNM7byQdevkqcOT'.
+      'p+6xuESUhHr2TGQfjdsiA="';
 
     const basicTestAuthorizationHeaderValue =
         'Signature '.self::basicTestSignatureHeaderValue;
 
     const basicTestSigningString =
-'(request-target): post /foo?param=value&pet=dog
+'(request-target): post /foo%20bar?test=this%3Dthat&actions=first%26second
 host: example.com
 date: Sun, 05 Jan 2014 21:31:40 GMT';
 
@@ -91,15 +92,15 @@ date: Sun, 05 Jan 2014 21:31:40 GMT';
     const allHeadersTestSignatureHeaderValue =
       'keyId="Test",algorithm="rsa-sha256",'.
       'headers="(request-target) host date content-type digest content-length",'.
-      'signature="vSdrb+dS3EceC9bcwHSo4MlyKS59iFIrhgYkz8+oVLEEzmYZZvRs'.
-      '8rgOp+63LEM3v+MFHB32NfpB2bEKBIvB1q52LaEUHFv120V01IL+TAD48XaERZF'.
-      'ukWgHoBTLMhYS2Gb51gWxpeIq8knRmPnYePbF5MOkR0Zkly4zKH7s1dE="';
+      'signature="o4kZwMTxTFN06sqFIUf8e1VDWrHMDucI0njxkP0GQidut+953Ce0pTW/leR'.
+      'vSC/Wka+EJ9rZbkV8hHwcZX02DYZPKHz16tSP42xSnTQdH4qdDxZZMjuEbHEDJIa1LoOWU'.
+      'TDm3pBioNHtt3iJRTFjw7yr4jmPqgc2LFmGKmbMddQ="';
 
     const allHeadersTestAuthorizationHeaderValue =
       'Signature '.self::allHeadersTestSignatureHeaderValue;
 
     const allHeadersTestSigningString =
-'(request-target): post /foo?param=value&pet=dog
+'(request-target): post /foo%20bar?test=this%3Dthat&actions=first%26second
 host: example.com
 date: Sun, 05 Jan 2014 21:31:40 GMT
 content-type: application/json
