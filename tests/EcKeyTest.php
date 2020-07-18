@@ -3,7 +3,6 @@
 namespace HttpSignatures\tests;
 
 use HttpSignatures\Key;
-use HttpSignatures\KeyException;
 use PHPUnit\Framework\TestCase;
 
 class EcKeyTest extends TestCase

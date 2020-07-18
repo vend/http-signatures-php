@@ -32,7 +32,7 @@ class Key
     public function __construct($id, $keys)
     {
         if (empty($keys)) {
-          throw new KeyException("No Key(s) provided", 1);
+            throw new KeyException('No Key(s) provided', 1);
         }
         $this->id = $id;
         $publicKeys = [];
@@ -65,12 +65,12 @@ class Key
                     if (!empty($secrets)) {
                         throw new KeyException('Private Key and Secret provided, only one type of signing key supported', 1);
                     }
-                    $fingerPrint = hash('sha256',$pkiKey->getPublicKey()->toString('PKCS8'));
+                    $fingerPrint = hash('sha256', $pkiKey->getPublicKey()->toString('PKCS8'));
                     $privateKey = $pkiKey;
                     $publicKeys[$fingerPrint] = $pkiKey->getPublicKey();
                     break;
                   case 'PublicKey':
-                    $fingerPrint = hash('sha256',$pkiKey->toString('PKCS8'));
+                    $fingerPrint = hash('sha256', $pkiKey->toString('PKCS8'));
                     if (!empty($secrets)) {
                         throw new KeyException('Public Key and Secret provided, only one type of verifying key supported', 1);
                     } elseif (!empty($privateKey) && !array_key_exists($fingerPrint, $publicKeys)) {
@@ -166,7 +166,7 @@ class Key
         case 'asymmetric':
             if (1 != sizeof($this->publicKeys)) {
                 throw new KeyException('More than one Verifying Key. Use getVerifyingKeys() instead', 1);
-                // TODO: Implement getVerifyingKeys and multiple key verification
+            // TODO: Implement getVerifyingKeys and multiple key verification
                 // https://github.com/liamdennehy/http-signatures-php/issues/20
             } else {
                 return str_replace("\r\n", "\n", current($this->publicKeys)->toString($format));
@@ -219,9 +219,9 @@ class Key
     public function getClass()
     {
         if (!empty($this->publicKeys)) {
-          return 'asymmetric';
+            return 'asymmetric';
         } else {
-          return 'secret';
+            return 'secret';
         }
     }
 
