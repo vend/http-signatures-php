@@ -2,6 +2,9 @@
 
 namespace HttpSignatures;
 
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\File\X509;
+
 class Key
 {
     /** @var string */
@@ -28,126 +31,127 @@ class Key
      */
     public function __construct($id, $keys)
     {
-        $this->opensslVersion = explode(' ', OPENSSL_VERSION_TEXT)[1];
-        $this->opensslMajor = explode('.', $this->opensslVersion)[0];
-        $this->opensslMinor = explode('.', $this->opensslVersion)[1];
-        $this->opensslPatch = explode('.', $this->opensslVersion)[2];
-
         $this->id = $id;
-        $publicKey = null;
+        $publicKeys = [];
         $privateKey = null;
-        $secret = null;
+        $secrets = [];
         if (!is_array($keys)) {
             $keys = [$keys];
         }
         foreach ($keys as $key) {
-            $pkiKey = Key::getPKIKeys($key);
-            if (!$pkiKey) {
+            try {
+                $pkiKey = PublicKeyLoader::load($key);
+            } catch (\Exception $e) {
+            }
+
+            if (empty($pkiKey)) {
                 if (0 != strpos($key, 'BEGIN')) {
-                    throw new KeyException('Input looks like PEM but key not understood using OpenSSL '.$this->opensslVersion.': '.$key, 1);
-                }
-                if (empty($secret)) {
-                    $secret = $key;
+                    throw new KeyException('Input looks like PEM but key not understood using phpseclib3', 1);
+                } elseif (!empty($publicKeys) || !empty($privateKsy)) {
+                    throw new KeyException('PKI Key(s) and Secret provided, only one type of key supported', 1);
                 } else {
-                    throw new KeyException('Multiple secrets provided', 1);
+                    $secrets[hash('sha256', $key)] = $key;
                 }
             } else {
-                if (!empty($pkiKey['public']) && !empty($publicKey)) {
-                    if (
-                    openssl_pkey_get_details($publicKey)['key'] !=
-                    openssl_pkey_get_details($pkiKey['public'])['key']
-                  ) {
-                        throw new KeyException('Multiple different public keys provided', 1);
+                $type = explode('\\', get_class($pkiKey))[3];
+                switch ($type) {
+                  case 'PrivateKey':
+                    if (!empty($privateKey)) {
+                        throw new KeyException('Multiple Private Keys Provided, only one signing key supported', 1);
                     }
-                } elseif (!empty($pkiKey['private']) && !empty($privateKey)) {
-                    if (
-                    openssl_pkey_get_details($privateKey)['key'] !=
-                    openssl_pkey_get_details($pkiKey['private'])['key']
-                  ) {
-                        throw new KeyException('Multiple different private keys provided', 1);
+                    if (!empty($secrets)) {
+                        throw new KeyException('Private Key and Secret provided, only one type of signing key supported', 1);
                     }
-                } elseif (!empty($pkiKey['public']) && empty($publicKey)) {
-                    $publicKey = $pkiKey['public'];
-                } elseif (!empty($pkiKey['private']) && empty($privateKey)) {
-                    $privateKey = $pkiKey['private'];
+                    $fingerPrint = $pkiKey->getPublicKey()->getFingerPrint('sha256');
+                    $privateKey = $pkiKey;
+                    $publicKeys[$fingerPrint] = $pkiKey->getPublicKey();
+                    break;
+                  case 'PublicKey':
+                    $fingerPrint = $pkiKey->getFingerprint('sha256');
+                    if (!empty($secrets)) {
+                        throw new KeyException('Public Key and Secret provided, only one type of verifying key supported', 1);
+                    } elseif (!empty($privateKey) && !array_key_exists($fingerPrint, $publicKeys)) {
+                        throw new KeyException("Public Key and Private Key don't seem to be related", 1);
+                    } else {
+                        $publicKeys[$fingerPrint] = $pkiKey;
+                    }
+                    break;
+
+                  default:
+                    throw new KeyException('Something went terribly wrong, not a secret and not PKI - should never happen', 1);
+                    break;
                 }
             }
         }
-        if (($publicKey || $privateKey)) {
-            if (!empty($secret)) {
-                throw new KeyException(!empty($secret).'Input has secret(s) and PKI keys, cannot process', 1);
-            }
+        if (!empty($publicKeys)) {
             $this->class = 'asymmetric';
             $this->privateKey = $privateKey;
-            $this->publicKey = $publicKey;
-            $this->type = $pkiKey['type'];
-            if ('ec' == $pkiKey['type']) {
-                $this->curve = $pkiKey['curve'];
+            $this->publicKeys = $publicKeys;
+            $this->algorithm = explode('\\', get_class($pkiKey))[2];
+            if ('EC' == $this->algorithm) {
+                $this->curve = current($publicKeys)->getCurve();
             }
         } else {
             $this->class = 'secret';
-            $this->secret = $secret;
+            $this->algorithm = 'HMAC';
+            $this->secrets = $secrets;
         }
     }
 
-    public static function getPKIKeys($item)
-    {
-        $keyTypes = ['rsa', 'ec', 'dsa'];
-        $eCCurves = [];
-        $key['public'] = null;
-        $key['private'] = null;
-        $key['curve'] = null;
-        if (Key::hasPrivateKey($item)) {
-            $key['private'] = Key::getPrivateKey($item);
-        } elseif (Key::isX509Certificate($item)) {
-            $key['public'] = Key::fromX509Certificate($item);
-        } elseif (Key::isPublicKey($item)) {
-            $key['public'] = Key::getPublicKey($item);
-        } else {
-            return false;
-        }
-        if (!empty($key['public'])) {
-            $keyDetails = openssl_pkey_get_details($key['public']);
-        } else {
-            $keyDetails = openssl_pkey_get_details($key['private']);
-        }
-        unset($keyDetails['key']);
-        unset($keyDetails['bits']);
-        unset($keyDetails['type']);
-        $type = array_intersect(
-          $keyTypes,
-          array_keys($keyDetails)
-        );
-        if (sizeof($type) > 1) {
-            throw new KeyException("Unknown key semantics, multiple recognised key types found: '".implode(','.$type)."'", 1);
-        } elseif (0 == sizeof($type)) {
-            throw new KeyException('Unknown key semantics, no recognised key types found: '.implode(',', array_keys(openssl_pkey_get_details($key['private']))).':'.$item, 1);
-        }
-
-        $key['type'] = array_keys($keyDetails)[0];
-        if ('ec' == $key['type']) {
-            $key['curve'] = $keyDetails[$key['type']]['curve_name'];
-        }
-
-        return $key;
-    }
+    // public static function getPKIKeys($item)
+    // {
+    //     $keyTypes = ['rsa', 'ec', 'dsa'];
+    //     $eCCurves = [];
+    //     $key['public'] = null;
+    //     $key['private'] = null;
+    //     $key['curve'] = null;
+    //     if (Key::hasPrivateKey($item)) {
+    //         $key['private'] = Key::getPrivateKey($item);
+    //         $key['public'] = Key::getPublicKey($item);
+    //     } elseif (Key::hasPublicKey($item)) {
+    //         $key['public'] = Key::getPublicKey($item);
+    //     } else {
+    //         return false;
+    //     }
+    //     print
+    //     // if (!empty($key['public'])) {
+    //     //     $keyDetails = openssl_pkey_get_details($key['public']);
+    //     // } else {
+    //     //     $keyDetails = openssl_pkey_get_details($key['private']);
+    //     // }
+    //     // unset($keyDetails['key']);
+    //     // unset($keyDetails['bits']);
+    //     // unset($keyDetails['type']);
+    //     // $type = array_intersect(
+    //     //   $keyTypes,
+    //     //   array_keys($keyDetails)
+    //     // );
+    //     // if (sizeof($type) > 1) {
+    //     //     throw new KeyException("Unknown key semantics, multiple recognised key types found: '".implode(','.$type)."'", 1);
+    //     // } elseif (0 == sizeof($type)) {
+    //     //     throw new KeyException('Unknown key semantics, no recognised key types found: '.implode(',', array_keys(openssl_pkey_get_details($key['private']))).':'.$item, 1);
+    //     // }
+    //     //
+    //     // $key['type'] = array_keys($keyDetails)[0];
+    //     // if ('ec' == $key['type']) {
+    //     //     $key['curve'] = $keyDetails[$key['type']]['curve_name'];
+    //     // }
+    //     //
+    //     return $key;
+    // }
 
     /**
-     * Retrieves private key resource from a input string or
-     * array of strings.
+     * Retrieves private key resource from a input string.
      *
-     * @param string|array $object PEM-format Private Key or file path to same
+     * @param string $key PEM-format Private Key
      *
      * @return resource|false
      */
     private static function getPrivateKey($key)
     {
-        // OpenSSL libraries don't have detection methods, so try..catch
-        try {
-            $privateKey = openssl_get_privatekey($key);
-
-            return $privateKey;
-        } catch (\Exception $e) {
+        if (Key::hasPrivateKey($key)) {
+            return PublicKeyLoader::load($key)->toString('PKCS8');
+        } else {
             return null;
         }
     }
@@ -184,9 +188,16 @@ class Key
 
     public static function fromX509Certificate($certificate)
     {
-        $publicKey = openssl_get_publickey($certificate);
-
-        return $publicKey;
+        try {
+            $key = PublicKeyLoader::load($certificate);
+        } catch (\Exception $e) {
+            return null;
+        }
+        if (!empty($key)) {
+            return $publicKey;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -208,18 +219,23 @@ class Key
      *
      * @throws KeyException
      */
-    public function getVerifyingKey()
+    public function getVerifyingKey($format = 'PKCS8')
     {
         switch ($this->class) {
         case 'asymmetric':
-            if ($this->publicKey) {
-                return openssl_pkey_get_details($this->publicKey)['key'];
+            if (1 != sizeof($this->publicKeys)) {
+                throw new KeyException('More than one Verifying Key. Use getVerifyingKeys() instead', 1);
             } else {
-                return null;
+                return str_replace("\r\n", "\n", current($this->publicKeys)->toString($format));
             }
             break;
         case 'secret':
-            return $this->secret;
+          if (1 != sizeof($this->secrets)) {
+              throw new KeyException('More than one Secret Key. Use getVerifyingKeys() instead', 1);
+          } else {
+              return current($this->secret);
+          }
+          // no break
         default:
             throw new KeyException("Unknown key class $this->class");
         }
@@ -232,14 +248,12 @@ class Key
      *
      * @throws KeyException
      */
-    public function getSigningKey()
+    public function getSigningKey($format = 'PKCS8')
     {
         switch ($this->class) {
         case 'asymmetric':
-            if ($this->privateKey) {
-                openssl_pkey_export($this->privateKey, $pem);
-
-                return $pem;
+            if (!empty($this->privateKey)) {
+                return str_replace("\r\n", "\n", $this->privateKey->toString($format));
             } else {
                 return null;
             }
@@ -267,7 +281,7 @@ class Key
             break;
 
           case 'asymmetric':
-            return $this->type;
+            return strtolower($this->algorithm);
             break;
 
           default:
@@ -288,17 +302,18 @@ class Key
      *
      * @return bool
      */
-    public static function isX509Certificate($object)
+    public static function isX509Certificate($candidate)
     {
         try {
-            $errorLevel = error_reporting(E_ERROR);
-            openssl_x509_export($object, $test);
-            error_reporting($errorLevel);
-
-            return  !empty($test);
+            $x509 = new X509();
+            $x509->loadX509($candidate);
+            $key = $x509->getPublicKey();
+            if ($key) {
+                return true;
+            } else {
+                return false;
+            }
         } catch (\Exception $e) {
-            error_reporting($errorLevel);
-
             return false;
         }
     }
@@ -328,21 +343,29 @@ class Key
       ;
     }
 
-    public static function hasPublicKey($object)
+    public static function hasPublicKey($candidate)
     {
-        if (Key::isX509Certificate($object)) {
-            return true;
-        }
-        try {
-            $errorLevel = error_reporting(E_ERROR);
-            $result = openssl_pkey_get_public($object);
-            error_reporting($errorLevel);
-
-            return  !empty($result);
-        } catch (\Exception $e) {
-            error_reporting($errorLevel);
-
+        if (empty($candidate)) {
             return false;
+        // } elseif (is_object($candidate)) {
+        //   var_dump(get_class($candidate));
+        } elseif (is_string($candidate)) {
+            try {
+                $key = PublicKeyLoader::load($candidate);
+                if (empty($key)) {
+                    return false;
+                }
+                if ('PrivateKey' === explode('\\', get_class($key))[3]) {
+                    $key = $key->getPublicKey();
+                    if (empty($key)) {
+                        return false;
+                    }
+                }
+
+                return 'PublicKey' === explode('\\', get_class($key))[3];
+            } catch (\Exception $e) {
+                return false;
+            }
         }
     }
 
@@ -353,18 +376,23 @@ class Key
      *
      * @return bool
      */
-    public static function hasPrivateKey($object)
+    public static function hasPrivateKey($candidate)
     {
-        try {
-            $errorLevel = error_reporting(E_ERROR);
-            $result = openssl_pkey_get_private($object);
-            error_reporting($errorLevel);
-
-            return  !empty($result);
-        } catch (\Exception $e) {
-            error_reporting($errorLevel);
-
+        if (empty($candidate)) {
             return false;
+        // } elseif (is_object($candidate)) {
+      //   var_dump(get_class($candidate));
+        } elseif (is_string($candidate)) {
+            try {
+                $key = PublicKeyLoader::load($candidate);
+                if (empty($key)) {
+                    return false;
+                }
+
+                return 'PrivateKey' === explode('\\', get_class($key))[3];
+            } catch (\Exception $e) {
+                return false;
+            }
         }
     }
 
