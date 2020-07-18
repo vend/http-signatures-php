@@ -98,48 +98,6 @@ class Key
         }
     }
 
-    // public static function getPKIKeys($item)
-    // {
-    //     $keyTypes = ['rsa', 'ec', 'dsa'];
-    //     $eCCurves = [];
-    //     $key['public'] = null;
-    //     $key['private'] = null;
-    //     $key['curve'] = null;
-    //     if (Key::hasPrivateKey($item)) {
-    //         $key['private'] = Key::getPrivateKey($item);
-    //         $key['public'] = Key::getPublicKey($item);
-    //     } elseif (Key::hasPublicKey($item)) {
-    //         $key['public'] = Key::getPublicKey($item);
-    //     } else {
-    //         return false;
-    //     }
-    //     print
-    //     // if (!empty($key['public'])) {
-    //     //     $keyDetails = openssl_pkey_get_details($key['public']);
-    //     // } else {
-    //     //     $keyDetails = openssl_pkey_get_details($key['private']);
-    //     // }
-    //     // unset($keyDetails['key']);
-    //     // unset($keyDetails['bits']);
-    //     // unset($keyDetails['type']);
-    //     // $type = array_intersect(
-    //     //   $keyTypes,
-    //     //   array_keys($keyDetails)
-    //     // );
-    //     // if (sizeof($type) > 1) {
-    //     //     throw new KeyException("Unknown key semantics, multiple recognised key types found: '".implode(','.$type)."'", 1);
-    //     // } elseif (0 == sizeof($type)) {
-    //     //     throw new KeyException('Unknown key semantics, no recognised key types found: '.implode(',', array_keys(openssl_pkey_get_details($key['private']))).':'.$item, 1);
-    //     // }
-    //     //
-    //     // $key['type'] = array_keys($keyDetails)[0];
-    //     // if ('ec' == $key['type']) {
-    //     //     $key['curve'] = $keyDetails[$key['type']]['curve_name'];
-    //     // }
-    //     //
-    //     return $key;
-    // }
-
     /**
      * Retrieves private key resource from a input string.
      *
@@ -157,39 +115,16 @@ class Key
     }
 
     /**
-     * Retrieves public key resource from a input string or
-     * array of strings.
+     * Retrieves public key resource from a input string.
      *
-     * @param string|array $object PEM-format Public Key or file path to same
+     * @param string $object PEM-format Public Key or file path to same
      *
      * @return resource|false
      */
-    private static function getPublicKey($object)
-    {
-        if (is_array($object)) {
-            // If we implement key rotation in future, this should add to a collection
-            foreach ($object as $candidateKey) {
-                $publicKey = Key::getPublicKey($candidateKey);
-                if ($publicKey) {
-                    return $publicKey;
-                }
-            }
-        } else {
-            // OpenSSL libraries don't have detection methods, so try..catch
-            try {
-                $publicKey = openssl_get_publickey($object);
-
-                return $publicKey;
-            } catch (\Exception $e) {
-                return null;
-            }
-        }
-    }
-
-    public static function fromX509Certificate($certificate)
+    private static function getPublicKey($candidate)
     {
         try {
-            $key = PublicKeyLoader::load($certificate);
+            $key = PublicKeyLoader::load($candidate);
         } catch (\Exception $e) {
             return null;
         }
@@ -198,6 +133,11 @@ class Key
         } else {
             return null;
         }
+    }
+
+    public static function fromX509Certificate($certificate)
+    {
+        return Key::getPublicKey($certificate);
     }
 
     /**
@@ -352,8 +292,6 @@ class Key
     {
         if (empty($candidate)) {
             return false;
-        // } elseif (is_object($candidate)) {
-        //   var_dump(get_class($candidate));
         } elseif (is_string($candidate)) {
             try {
                 $key = PublicKeyLoader::load($candidate);
@@ -385,8 +323,6 @@ class Key
     {
         if (empty($candidate)) {
             return false;
-        // } elseif (is_object($candidate)) {
-      //   var_dump(get_class($candidate));
         } elseif (is_string($candidate)) {
             try {
                 $key = PublicKeyLoader::load($candidate);
