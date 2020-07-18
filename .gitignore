@@ -2,4 +2,4 @@
 /vendor/
 .php_cs.cache
 doc/build
-.tags
+.tags*
