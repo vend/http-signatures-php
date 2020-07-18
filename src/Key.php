@@ -233,7 +233,7 @@ class Key
           if (1 != sizeof($this->secrets)) {
               throw new KeyException('More than one Secret Key. Use getVerifyingKeys() instead', 1);
           } else {
-              return current($this->secret);
+              return current($this->secrets);
           }
           // no break
         default:
@@ -259,7 +259,12 @@ class Key
             }
             break;
         case 'secret':
-            return $this->secret;
+            if (sizeof($this->secrets) > 1) {
+                throw new KeyException('Multiple Secrets in Key, use only one as input for signing');
+            } else {
+                return current($this->secrets);
+            }
+            // no break
         default:
             throw new KeyException("Unknown key class $this->class");
         }
