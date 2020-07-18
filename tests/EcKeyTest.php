@@ -57,6 +57,8 @@ class EcKeyTest extends TestCase
     public function testParseAdvancedKeys()
     {
         $curves = [
+          'secp256r1',
+          'prime239v3',
           'Ed25519',
           // 'ED448',
           // 'X25519',
@@ -67,6 +69,10 @@ class EcKeyTest extends TestCase
         }
         foreach ($curves as $curve) {
             $privatekeyData = file_get_contents(__DIR__."/keys/$curve.key");
+            $this->assertEquals(
+              $curve.': '.'Is Private Key',
+              $curve.': '.(Key::isPrivateKey($privatekeyData) ? 'Is Private Key' : 'Is Not Private Key')
+            );
             $this->assertEquals(
               $curve.': '.'Has Public Key',
               $curve.': '.(Key::hasPublicKey($privatekeyData) ? 'Has Public Key' : 'Has No Public Key')
@@ -99,28 +105,6 @@ class EcKeyTest extends TestCase
               $curve.': '.'Has No Private Key',
               $curve.': '.(Key::hasPrivateKey($publicKeyData) ? 'Has Private Key' : 'Has No Private Key')
             );
-            // $key = new Key('key-ed25519', $publicKeyData);
-            // $this->assertEquals(
-            //   $curve.' is asymmetric',
-            //   $curve.' is '.$key->getClass()
-            // );
-            // $this->assertEquals(
-            //   $curve.' is ec',
-            //   $curve.' is '.$key->getType()
-            // );
-            // $this->assertEquals(
-            //   $curve.' is '.$curve,
-            //   $curve.' is '.$key->getCurve()
-            // );
-            // } catch (KeyException $e) {
-        //   $this->assertTrue(true);
-        //   // $this->markTestSkipped("Unsupported EC Type $curve using OpenSSL " . $this->opensslVersion);
-        //   // $this->expectException(KeyException::class);
-        //   // throw new KeyException($e->getMessage(), 1);
-        //
-        // }
         }
-        // Cannot handle EC for now
-        $this->assertTrue(true);
     }
 }
