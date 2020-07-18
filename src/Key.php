@@ -31,6 +31,9 @@ class Key
      */
     public function __construct($id, $keys)
     {
+        if (empty($keys)) {
+          throw new KeyException("No Key(s) provided", 1);
+        }
         $this->id = $id;
         $publicKeys = [];
         $privateKey = null;
@@ -62,12 +65,12 @@ class Key
                     if (!empty($secrets)) {
                         throw new KeyException('Private Key and Secret provided, only one type of signing key supported', 1);
                     }
-                    $fingerPrint = $pkiKey->getPublicKey()->getFingerPrint('sha256');
+                    $fingerPrint = hash('sha256',$pkiKey->getPublicKey()->toString('PKCS8'));
                     $privateKey = $pkiKey;
                     $publicKeys[$fingerPrint] = $pkiKey->getPublicKey();
                     break;
                   case 'PublicKey':
-                    $fingerPrint = $pkiKey->getFingerprint('sha256');
+                    $fingerPrint = hash('sha256',$pkiKey->toString('PKCS8'));
                     if (!empty($secrets)) {
                         throw new KeyException('Public Key and Secret provided, only one type of verifying key supported', 1);
                     } elseif (!empty($privateKey) && !array_key_exists($fingerPrint, $publicKeys)) {
@@ -84,7 +87,6 @@ class Key
             }
         }
         if (!empty($publicKeys)) {
-            $this->class = 'asymmetric';
             $this->privateKey = $privateKey;
             $this->publicKeys = $publicKeys;
             $this->algorithm = explode('\\', get_class($pkiKey))[2];
@@ -92,7 +94,6 @@ class Key
                 $this->curve = current($publicKeys)->getCurve();
             }
         } else {
-            $this->class = 'secret';
             $this->algorithm = 'HMAC';
             $this->secrets = $secrets;
         }
@@ -161,10 +162,12 @@ class Key
      */
     public function getVerifyingKey($format = 'PKCS8')
     {
-        switch ($this->class) {
+        switch ($this->getClass()) {
         case 'asymmetric':
             if (1 != sizeof($this->publicKeys)) {
                 throw new KeyException('More than one Verifying Key. Use getVerifyingKeys() instead', 1);
+                // TODO: Implement getVerifyingKeys and multiple key verification
+                // https://github.com/liamdennehy/http-signatures-php/issues/20
             } else {
                 return str_replace("\r\n", "\n", current($this->publicKeys)->toString($format));
             }
@@ -190,7 +193,7 @@ class Key
      */
     public function getSigningKey($format = 'PKCS8')
     {
-        switch ($this->class) {
+        switch ($this->getClass()) {
         case 'asymmetric':
             if (!empty($this->privateKey)) {
                 return str_replace("\r\n", "\n", $this->privateKey->toString($format));
@@ -215,12 +218,16 @@ class Key
      */
     public function getClass()
     {
-        return $this->class;
+        if (!empty($this->publicKeys)) {
+          return 'asymmetric';
+        } else {
+          return 'secret';
+        }
     }
 
     public function getType()
     {
-        switch ($this->class) {
+        switch ($this->getClass()) {
           case 'secret':
             return 'hmac';
             break;
