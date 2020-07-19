@@ -28,7 +28,6 @@ class BodyDigest
             $hashAlgorithm = 'sha256';
         }
 
-        // Normalise to openssl type for switch - remove dashes and lowercase
         $hashAlgorithm = strtolower(str_replace('-', '', $hashAlgorithm));
         if (!$this->isValidDigestSpec($hashAlgorithm)) {
             throw new DigestException("'$hashAlgorithm' is not a valid Digest algorithm specifier");

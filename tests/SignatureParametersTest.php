@@ -4,8 +4,8 @@ namespace HttpSignatures\tests;
 
 use HttpSignatures\HeaderList;
 use HttpSignatures\HmacAlgorithm;
-use HttpSignatures\RsaAlgorithm;
 use HttpSignatures\Key;
+use HttpSignatures\RsaAlgorithm;
 use HttpSignatures\SignatureParameters;
 use PHPUnit\Framework\TestCase;
 

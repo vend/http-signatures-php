@@ -4,10 +4,10 @@ namespace HttpSignatures\tests;
 
 use GuzzleHttp\Psr7\Request;
 use HttpSignatures\HeaderList;
-use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use HttpSignatures\SigningString;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class SigningStringTest extends TestCase
 {

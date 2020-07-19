@@ -2,6 +2,9 @@
 
 namespace HttpSignatures;
 
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\RSA;
+
 class RsaAlgorithm implements AlgorithmInterface
 {
     /** @var string */
@@ -28,37 +31,34 @@ class RsaAlgorithm implements AlgorithmInterface
      * @param string $data
      *
      * @return string
-     *
-     * @throws \HttpSignatures\AlgorithmException
      */
     public function sign($signingKey, $data)
     {
-        $algo = $this->getRsaHashAlgo($this->digestName);
-        if (!openssl_get_privatekey($signingKey)) {
-            throw new AlgorithmException("OpenSSL doesn't understand the supplied key (not valid or not found)");
-        }
-        $signature = '';
-        openssl_sign($data, $signature, $signingKey, $algo);
+        $rsa = PublicKeyLoader::load($signingKey)
+          ->withHash($this->digestName)
+          ->withPadding(RSA::SIGNATURE_PKCS1);
+        $signature = $rsa->sign($data);
 
         return $signature;
     }
 
     public function verify($message, $signature, $verifyingKey)
     {
-        $algo = $this->getRsaHashAlgo($this->digestName);
+        $rsa = PublicKeyLoader::load($verifyingKey)
+          ->withHash($this->digestName)
+          ->withPadding(RSA::SIGNATURE_PKCS1);
+        try {
+            $valid = $rsa->verify($message, base64_decode($signature));
 
-        return 1 === openssl_verify($message, base64_decode($signature), $verifyingKey, $algo);
-    }
-
-    private function getRsaHashAlgo($digestName)
-    {
-        switch ($digestName) {
-        case 'sha256':
-            return OPENSSL_ALGO_SHA256;
-        case 'sha1':
-            return OPENSSL_ALGO_SHA1;
-        default:
-            throw new HttpSignatures\AlgorithmException($digestName.' is not a supported hash format');
-      }
+            return $valid;
+        } catch (\Exception $e) {
+            if ('Invalid signature' != $e->getMessage()) {
+                // Unhandled error state
+                throw $e;
+            } else {
+                // Tolerate malformed signature
+                return false;
+            }
+        }
     }
 }

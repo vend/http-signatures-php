@@ -2,6 +2,8 @@
 
 namespace HttpSignatures;
 
+use phpseclib3\Crypt\PublicKeyLoader;
+
 class EcAlgorithm implements AlgorithmInterface
 {
     /** @var string */
@@ -33,32 +35,24 @@ class EcAlgorithm implements AlgorithmInterface
      */
     public function sign($signingKey, $data)
     {
-        $algo = $this->getEcHashAlgo($this->digestName);
-        if (!openssl_get_privatekey($signingKey)) {
-            throw new AlgorithmException("OpenSSL doesn't understand the supplied key (not valid or not found)");
-        }
-        $signature = '';
-        openssl_sign($data, $signature, $signingKey, $algo);
+        $ec = PublicKeyLoader::load($signingKey)
+            ->withHash($this->digestName);
+        $signature = $ec->sign($data);
 
         return $signature;
     }
 
     public function verify($message, $signature, $verifyingKey)
     {
-        $algo = $this->getEcHashAlgo($this->digestName);
+        $ec = PublicKeyLoader::load($verifyingKey)
+            ->withHash($this->digestName);
+        try {
+            $valid = $ec->verify($message, base64_decode($signature));
 
-        return 1 === openssl_verify($message, base64_decode($signature), $verifyingKey, $algo);
-    }
-
-    private function getEcHashAlgo($digestName)
-    {
-        switch ($digestName) {
-        case 'sha256':
-            return OPENSSL_ALGO_SHA256;
-        case 'sha1':
-            return OPENSSL_ALGO_SHA1;
-        default:
-            throw new HttpSignatures\AlgorithmException($digestName.' is not a supported hash format');
-      }
+            return $valid;
+        } catch (\Exception $e) {
+            // Tolerate malformed signature
+            return false;
+        }
     }
 }

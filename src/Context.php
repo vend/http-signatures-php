@@ -110,9 +110,6 @@ class Context
         return $this->keyStore;
     }
 
-    /**
-     * @param KeyStoreInterface $keyStore
-     */
     private function setKeyStore(KeyStoreInterface $keyStore)
     {
         $this->keyStore = $keyStore;

@@ -13,7 +13,6 @@ class SigningString
     private $message;
 
     /**
-     * @param HeaderList       $headerList
      * @param RequestInterface $message
      */
     public function __construct(HeaderList $headerList, $message)

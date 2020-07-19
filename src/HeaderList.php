@@ -10,9 +10,6 @@ class HeaderList
     /** @var bool */
     private $headerListSpecified;
 
-    /**
-     * @param array $names
-     */
     public function __construct(array $names, $headerListSpecified = true)
     {
         if (!$names) {

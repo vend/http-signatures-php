@@ -3,113 +3,107 @@
 namespace HttpSignatures\tests;
 
 use HttpSignatures\Key;
-use HttpSignatures\KeyException;
 use PHPUnit\Framework\TestCase;
 
 class EcKeyTest extends TestCase
 {
-    public function setUp()
-    {
-        $this->opensslVersion = explode(' ', OPENSSL_VERSION_TEXT)[1];
-        $this->opensslMajor = explode('.', $this->opensslVersion)[0];
-        $this->opensslMinor = explode('.', $this->opensslVersion)[1];
-        $this->opensslPatch = explode('.', $this->opensslVersion)[2];
-        if ($this->opensslMajor < 1) {
-            throw new Exception('OpenSSL library version < 1, cannot process EC keys', 1);
-        }
-    }
-
-    public function testEcKeys()
+    public function testNamedEcKeys()
     {
         $curves = [
-          'secp256k1',
-          'prime192v1',
+          // 'secp256k1',
+          // 'prime192v1',
         ];
+        if (empty($curves)) {
+            $this->markTestSkipped('No supported curves');
+        }
         foreach ($curves as $curve) {
             $privateKeyData = file_get_contents(__DIR__."/keys/$curve.named.key");
-            $key = new Key($curve, $privateKeyData);
+            $privateKey = new Key($curve, $privateKeyData);
             $this->assertEquals(
-            $curve.' is asymmetric',
-            $curve.' is '.$key->getClass()
-          );
+              $curve.': '.true,
+              $curve.': '.Key::hasPublicKey($privateKey)
+            );
             $this->assertEquals(
-            $curve.' is ec',
-            $curve.' is '.$key->getType()
-          );
+              $curve.' is asymmetric',
+              $curve.' is '.$privateKey->getClass()
+            );
             $this->assertEquals(
-            $curve.' is '.$curve,
-            $curve.' is '.$key->getCurve()
-          );
-
+              $curve.' is ec',
+              $curve.' is '.$privateKey->getType()
+            );
+            $this->assertEquals(
+              $curve.' is '.$curve,
+              $curve.' is '.$privateKey->getCurve()
+            );
             $publicKeyData = file_get_contents(__DIR__."/keys/$curve.named.pub");
-            $key = new Key($curve, $publicKeyData);
+            $publicKey = new Key($curve, $publicKeyData);
             $this->assertEquals(
-            $curve.' is asymmetric',
-            $curve.' is '.$key->getClass()
-          );
+              $curve.' is asymmetric',
+              $curve.' is '.$publicKey->getClass()
+            );
             $this->assertEquals(
-            $curve.' is ec',
-            $curve.' is '.$key->getType()
-          );
+              $curve.' is ec',
+              $curve.' is '.$publicKey->getType()
+            );
             $this->assertEquals(
-            $curve.' is '.$curve,
-            $curve.' is '.$key->getCurve()
-          );
+              $curve.' is '.$curve,
+              $curve.' is '.$publicKey->getCurve()
+            );
+            $this->assertTrue(Key::hasPublicKey($publicKey));
         }
     }
 
     public function testParseAdvancedKeys()
     {
-        if ($this->opensslMinor < 1) {
-            $this->markTestSkipped(
-              'OpenSSL '.$this->opensslVersion.
-              ' probably doesn\'t understand later EC curves'
-            );
-        }
         $curves = [
-          'ED25519',
-          'ED448',
-          'X25519',
-          'X448',
+          'secp256r1',
+          'prime239v3',
+          'Ed25519',
+          // 'ED448',
+          // 'X25519',
+          // 'X448',
         ];
+        if (empty($curves)) {
+            $this->markTestSkipped('No supported curves');
+        }
         foreach ($curves as $curve) {
-            $keyData = file_get_contents(__DIR__."/keys/$curve.key");
-            // try {
-            $key = new Key('key-ed25519', $keyData);
+            $privatekeyData = file_get_contents(__DIR__."/keys/$curve.key");
             $this->assertEquals(
-            $curve.' is asymmetric',
-            $curve.' is '.$key->getClass()
-          );
+              $curve.': '.'Is Private Key',
+              $curve.': '.(Key::isPrivateKey($privatekeyData) ? 'Is Private Key' : 'Is Not Private Key')
+            );
             $this->assertEquals(
-            $curve.' is ec',
-            $curve.' is '.$key->getType()
-          );
+              $curve.': '.'Has Public Key',
+              $curve.': '.(Key::hasPublicKey($privatekeyData) ? 'Has Public Key' : 'Has No Public Key')
+            );
             $this->assertEquals(
-            $curve.' is '.$curve,
-            $curve.' is '.$key->getCurve()
-          );
+              $curve.': '.'Has Private Key',
+              $curve.': '.(Key::hasPrivateKey($privatekeyData) ? 'Has Private Key' : 'Has No Private Key')
+            );
+            $key = new Key($curve, $privatekeyData);
+            $this->assertEquals(
+              $curve.' is asymmetric',
+              $curve.' is '.$key->getClass()
+            );
+            $this->assertEquals(
+              $curve.' is ec',
+              $curve.' is '.$key->getType()
+            );
+            $this->assertEquals(
+              $curve.' is '.$curve,
+              $curve.' is '.$key->getCurve()
+            );
 
-            $keyData = file_get_contents(__DIR__.'/keys/ED25519.pub');
-            $key = new Key('key-ed25519', $publicKeyData);
+            $publicKeyData = file_get_contents(__DIR__."/keys/$curve.pub");
+            // print "aaaaa".$publicKeyData . PHP_EOL;
             $this->assertEquals(
-            $curve.' is asymmetric',
-            $curve.' is '.$key->getClass()
-          );
+              $curve.': '.'Has Public Key',
+              $curve.': '.(Key::hasPublicKey($publicKeyData) ? 'Has Public Key' : 'Has No Public Key')
+            );
             $this->assertEquals(
-            $curve.' is ec',
-            $curve.' is '.$key->getType()
-          );
-            $this->assertEquals(
-            $curve.' is '.$curve,
-            $curve.' is '.$key->getCurve()
-          );
-            // } catch (KeyException $e) {
-        //   $this->assertTrue(true);
-        //   // $this->markTestSkipped("Unsupported EC Type $curve using OpenSSL " . $this->opensslVersion);
-        //   // $this->expectException(KeyException::class);
-        //   // throw new KeyException($e->getMessage(), 1);
-        //
-        // }
+              $curve.': '.'Has No Private Key',
+              $curve.': '.(Key::hasPrivateKey($publicKeyData) ? 'Has Private Key' : 'Has No Private Key')
+            );
         }
     }
 }
