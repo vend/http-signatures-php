@@ -6,22 +6,22 @@ use GuzzleHttp\Psr7\Request;
 use HttpSignatures\Context;
 use PHPUnit\Framework\TestCase;
 
-class EcSignerTest extends TestCase
+class SignerDsaTest extends TestCase
 {
     private $context;
 
     public function setUp()
     {
-        $p256KeyFile = __DIR__.'/keys/prime256v1.named.key';
-        $this->p256PrivateKey = file_get_contents($p256KeyFile);
+        $dsaKeyFile = __DIR__.'/keys/DSA.key';
+        $this->dsaPrivateKey = file_get_contents($dsaKeyFile);
         $this->sha1context = new Context([
-            'keys' => ['prime256v1' => $this->p256PrivateKey],
-            'algorithm' => 'ec-sha1',
+            'keys' => ['prime256v1' => $this->dsaPrivateKey],
+            'algorithm' => 'dsa-sha1',
             'headers' => ['(request-target)', 'date'],
         ]);
         $this->sha256context = new Context([
-            'keys' => ['prime256v1' => $this->p256PrivateKey],
-            'algorithm' => 'ec-sha256',
+            'keys' => ['prime256v1' => $this->dsaPrivateKey],
+            'algorithm' => 'dsa-sha256',
             'headers' => ['(request-target)', 'date'],
         ]);
         $this->message = new Request(
@@ -55,12 +55,12 @@ class EcSignerTest extends TestCase
         );
     }
 
-    public function testEcBadalgorithm()
+    public function testDsaBadalgorithm()
     {
         $this->expectException(\HTTPSignatures\AlgorithmException::class);
         $sha224context = new Context([
-              'keys' => ['prime256v1' => $this->p256PrivateKey],
-              'algorithm' => 'ec-sha224',
+              'keys' => ['prime256v1' => $this->dsaPrivateKey],
+              'algorithm' => 'dsa-sha224',
               'headers' => ['(request-target)', 'date'],
           ]);
     }
