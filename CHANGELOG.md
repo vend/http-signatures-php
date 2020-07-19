@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 11.0.0-alpha4
+
+- Move phpseclib from git ref to "stable" liamdennehy/phpseclib.
+  - Temporary dependency until phpseclib 3.0 stabilises, avoids having to
+    use direct git commit refs and library appears to have "stable" only deps.
+  - phpseclib 3.0 is still in development, but API is unlikely to drastically
+    change, and once rleeased this dependency will revert to the official
+    package (with any required fixes).
+
 ## 11.0.0-alpha3
 
 - Remove all openssl depedencencies
