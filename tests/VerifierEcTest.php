@@ -82,7 +82,7 @@ class VerifierEcTest extends TestCase
         ));
     }
 
-    public function testRejectTamperedRsaSignature()
+    public function testRejectTamperedSignature()
     {
         $this->assertFalse($this->verifier->isSigned(
           $this->sha256SignedMessage->withHeader(

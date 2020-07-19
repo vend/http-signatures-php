@@ -1,4 +1,4 @@
-# HTTP Signatures
+# Signing HTTP Messages PSR-7 Library
 
 [![Build Status](https://travis-ci.org/liamdennehy/http-signatures-php.svg?branch=master)](https://travis-ci.org/liamdennehy/http-signatures-php)
 [![Documentation Status](https://readthedocs.org/projects/http-signatures-php/badge/?version=latest)](https://http-signatures-php.readthedocs.io/en/latest/?badge=latest)
@@ -17,11 +17,12 @@ allowing cryptographic signing and verifying of [PSR-7 messages][psr7].
 
 - Sign HTTP Messages according to [Signing HTTP Message draft IETF RFC version 10][draft10]
 - Sign & verify messages using HMACs
-- Sign & verify messages with RSA private/public keys
+- Sign & verify messages with Asymmetric Keys:
+  - RSA, DSA, EC
 - Add a ``Digest`` header, or automatically add the header while signing in a single operation
 - Verify a ``Digest`` header while verifying the signature
 
-Complete documentation for this library can be found at 
+Complete documentation for this library can be found at
 [Read The Docs](https://http-signatures-php.readthedocs.io/en/latest/)
 
 ## Simple Usage
@@ -50,12 +51,12 @@ Using an PSR-7 request ``$message`` ready to send:
 
 ## Contributing
 
-Pull Requests are welcome, as are 
+Pull Requests are welcome, as are
 [issue reports][github-issues] if you encounter any problems.
 
 **Note**: Due to composer dependencies for the reference implementation
 ``composer install`` prior to local development is only posible on PHP 7.1,
-or by manually removing the incompatible dependencies using the command 
+or by manually removing the incompatible dependencies using the command
 (wrapped for readability):
 
 ```sh
