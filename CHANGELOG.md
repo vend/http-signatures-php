@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 11.0.0-alpha4
+## 11.0.0-beta1
 
 - Move phpseclib from git ref to "stable" liamdennehy/phpseclib.
   - Temporary dependency until phpseclib 3.0 stabilises, avoids having to
