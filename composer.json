@@ -23,16 +23,10 @@
             "HttpSignatures\\Tests\\": "tests/"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:phpseclib/phpseclib.git"
-        }
-    ],
     "require": {
         "php": ">=5.6",
         "psr/http-message": "^1.0",
-        "phpseclib/phpseclib": "dev-master#dc6ccb2ad512fad67cc16655c414bbd8da6a3ab1"
+        "liamdennehy/phpseclib": "~3.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2",
