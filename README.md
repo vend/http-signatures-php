@@ -25,6 +25,14 @@ allowing cryptographic signing and verifying of [PSR-7 messages][psr7].
 Complete documentation for this library can be found at
 [Read The Docs](https://http-signatures-php.readthedocs.io/en/latest/)
 
+**WARNING:** Version 11 of this library incorporates
+[phpseclib](http://phpseclib.sourceforge.net/)'s ongoing work on their
+[version 3.0 implementation](https://github.com/phpseclib/phpseclib/tree/3.0).
+If there are any problems please log an issue, but as the library has not been
+stabilised or completely reviewed you are advised to proceed with caution,
+or remain at v10 of this library until phpseclib 3.0 is complete and the
+MAJOR version of this library is bumped.
+
 ## Simple Usage
 
 Add [liamdennehy/http-signatures-php][package] to your [``composer.json``][composer].
@@ -35,7 +43,7 @@ Add [liamdennehy/http-signatures-php][package] to your [``composer.json``][compo
 * The ``signWithDigest`` function witll add a ``Digest`` header and digitally
   sign the message in a new ``Signature`` header.
 
-Using an PSR-7 request ``$message`` ready to send:
+Signing a PSR-7 request ``$message`` before sending:
 
 ```php
   use HttpSignatures\Context;
@@ -48,6 +56,9 @@ Using an PSR-7 request ``$message`` ready to send:
 
   $context->signer()->signWithDigest($message);
 ```
+
+Complete documentation for this library for other ose cases can be found at
+[Read The Docs](https://http-signatures-php.readthedocs.io/en/latest/)
 
 ## Contributing
 
