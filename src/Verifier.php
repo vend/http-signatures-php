@@ -10,7 +10,7 @@ class Verifier
     private $keyStore;
 
     /**
-     * @var string
+     * @var array
      */
     private $status;
 
