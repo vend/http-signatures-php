@@ -5,8 +5,12 @@ namespace HttpSignatures\tests;
 use GuzzleHttp\Psr7\Request;
 use HttpSignatures\HeaderList;
 use HttpSignatures\SigningString;
+use Laminas\Diactoros\ServerRequestFactory;
+use Laminas\Diactoros\ResponseFactory;
+use Laminas\Diactoros\StreamFactory;
+use Laminas\Diactoros\UploadedFileFactory;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class SigningStringTest extends TestCase
@@ -18,7 +22,7 @@ class SigningStringTest extends TestCase
           '/path',
           ['date' => 'Mon, 28 Jul 2014 15:39:13 -0700']
         );
-        $this->psr7Factory = new DiactorosFactory();
+        $this->psr7Factory = new PsrHttpFactory(new ServerRequestFactory(), new StreamFactory(), new UploadedFileFactory(), new ResponseFactory());
     }
 
     public function testWithoutQueryString()
