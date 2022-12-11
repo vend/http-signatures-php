@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 12.0.0
+
+- **Breaking**: Drop support for PHP versions below 8.0.
+- Use mainline phpseclib, now that 3.0 is released.
+- Fix dynamic property deprecation warnings in PHP 8.2.
+- Internal improvements: update dev dependencies, add Psalm checking
+
 ## 11.0.0-beta1
 
 - Move phpseclib from git ref to "stable" liamdennehy/phpseclib.
