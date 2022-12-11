@@ -23,6 +23,10 @@ class VerifierRsaTest extends TestCase
      */
     private $message;
 
+    private $sha256SignedMessage;
+
+    private $sha256AuthorizedMessage;
+
     public function setUp(): void
     {
         $this->setUpRsaVerifier();

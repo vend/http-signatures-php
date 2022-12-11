@@ -10,6 +10,12 @@ class HmacContextTest extends TestCase
 {
     private $context;
 
+    private $noDigestContext;
+
+    private $withDigestContext;
+
+    private $noHeadersContext;
+
     public function setUp(): void
     {
         $this->noDigestContext = new Context([

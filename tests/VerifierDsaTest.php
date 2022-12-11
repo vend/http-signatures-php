@@ -22,6 +22,12 @@ class VerifierDsaTest extends TestCase
      */
     private $message;
 
+    private $dsaPublicKey;
+
+    private $sha256SignedMessage;
+
+    private $sha256AuthorizedMessage;
+
     public function setUp(): void
     {
         $this->setUpDsaVerifier();

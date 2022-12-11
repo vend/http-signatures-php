@@ -22,6 +22,12 @@ class VerifierEcTest extends TestCase
      */
     private $message;
 
+    private $p256PublicKey;
+
+    private $sha256SignedMessage;
+
+    private $sha256AuthorizedMessage;
+
     public function setUp(): void
     {
         $this->setUpEcVerifier();

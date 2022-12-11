@@ -7,17 +7,25 @@ use phpseclib3\File\X509;
 
 class Key
 {
+    private $algorithm;
+
+    private $curve;
+
     /** @var string */
     private $id;
 
     /** @var string */
     private $secret;
 
+    private $secrets;
+
     /** @var resource */
     private $certificate;
 
     /** @var resource */
     private $publicKey;
+
+    private $publicKeys;
 
     /** @var resource */
     private $privateKey;

@@ -10,6 +10,14 @@ class DsaContextTest extends TestCase
 {
     private $context;
 
+    private $dsaPrivateKey;
+
+    private $sha1context;
+
+    private $sha256context;
+
+    private $message;
+
     public function setUp(): void
     {
         $dsaKeyFile = __DIR__.'/keys/DSA.key';

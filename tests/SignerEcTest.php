@@ -10,6 +10,14 @@ class SignerEcTest extends TestCase
 {
     private $context;
 
+    private $p256PrivateKey;
+
+    private $sha1context;
+
+    private $sha256context;
+
+    private $message;
+
     public function setUp(): void
     {
         $p256KeyFile = __DIR__.'/keys/prime256v1.named.key';

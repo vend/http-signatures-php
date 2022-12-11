@@ -11,6 +11,12 @@ class RsaContextTest extends TestCase
 {
     private $context;
 
+    private $sha1context;
+
+    private $sha256context;
+
+    private $message;
+
     public function setUp(): void
     {
         $this->sha1context = new Context([

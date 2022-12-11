@@ -15,6 +15,10 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class SigningStringTest extends TestCase
 {
+    private $message;
+
+    private $psr7Factory;
+
     public function setUp(): void
     {
         $this->message = new Request(

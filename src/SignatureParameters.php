@@ -10,13 +10,12 @@ class SignatureParameters
      * @param HeaderList         $headerList
      * @param Signature          $signature
      */
-    public function __construct($key, $algorithm, $headerList, $signature)
-    {
-        $this->key = $key;
-        $this->algorithm = $algorithm;
-        $this->headerList = $headerList;
-        $this->signature = $signature;
-    }
+    public function __construct(
+        private $key,
+        private $algorithm,
+        private $headerList,
+        private $signature,
+    ) {}
 
     /**
      * @return string

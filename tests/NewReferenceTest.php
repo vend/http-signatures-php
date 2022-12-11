@@ -114,10 +114,9 @@ content-length: 18';
      */
     private $referenceMessage;
 
-    /**
-     * @var KeyStore
-     */
-    private $signingKeyStore;
+    private $signingKey;
+
+    private $verifier;
 
     public function testTrue()
     {

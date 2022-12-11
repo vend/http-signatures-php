@@ -11,6 +11,8 @@ class BodyDigestTest extends TestCase
 {
     private $context;
 
+    private $bodyDigest;
+
     public function setUp(): void
     {
         $this->bodyDigest = new BodyDigest();

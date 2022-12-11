@@ -27,6 +27,14 @@ class VerifierHmacTest extends TestCase
      */
     private $validMessageNoHeaders;
 
+    private $signedMessage;
+
+    private $authorizedMessage;
+
+    private $signedMessageNoHeaders;
+
+    private $authorizedMessageNoHeaders;
+
     public function setUp(): void
     {
         $this->setUpVerifier();

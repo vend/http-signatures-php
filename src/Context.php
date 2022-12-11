@@ -4,6 +4,8 @@ namespace HttpSignatures;
 
 class Context
 {
+    private $algorithm;
+
     /** @var array */
     private $headers;
 
