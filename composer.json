@@ -29,15 +29,15 @@
         "liamdennehy/phpseclib": "~3.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2",
+        "friendsofphp/php-cs-fixer": "^3",
         "guzzlehttp/psr7": "^1.2",
-        "phpunit/phpunit": "~5.6",
-        "symfony/http-foundation": "~2.8|~3.0",
-        "symfony/psr-http-message-bridge": "^1.0.2",
-        "zendframework/zend-diactoros": "^1.1",
+        "phpunit/phpunit": "~9.5",
+        "symfony/http-foundation": "~6.2",
+        "symfony/psr-http-message-bridge": "^2.1.4",
+        "laminas/laminas-diactoros": "^2.22",
         "nyholm/psr7": "^1.1",
-        "nyholm/psr7-server": "^0.3.0",
+        "nyholm/psr7-server": "^1.0",
         "kriswallsmith/buzz": "^1.0",
-        "zendframework/zend-httphandlerrunner": "^1.1"
+        "laminas/laminas-httphandlerrunner": "^2.4"
     }
 }
