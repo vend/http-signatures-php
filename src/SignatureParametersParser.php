@@ -63,8 +63,6 @@ class SignatureParametersParser
     }
 
     /**
-     * @param $segment
-     *
      * @return array
      *
      * @throws SignatureParseException
@@ -85,8 +83,6 @@ class SignatureParametersParser
     }
 
     /**
-     * @param $result
-     *
      * @throws SignatureParseException
      */
     private function validate($result)
@@ -95,8 +91,6 @@ class SignatureParametersParser
     }
 
     /**
-     * @param $result
-     *
      * @throws SignatureParseException
      */
     private function validateAllKeysArePresent($result)

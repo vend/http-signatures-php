@@ -9,8 +9,8 @@ use PHPUnit\Framework\TestCase;
 
 class VerifierHmacTest extends TestCase
 {
-    const DATE = 'Fri, 01 Aug 2014 13:44:32 -0700';
-    const DATE_DIFFERENT = 'Fri, 01 Aug 2014 13:44:33 -0700';
+    public const DATE = 'Fri, 01 Aug 2014 13:44:32 -0700';
+    public const DATE_DIFFERENT = 'Fri, 01 Aug 2014 13:44:33 -0700';
 
     /**
      * @var Verifier
@@ -96,23 +96,23 @@ class VerifierHmacTest extends TestCase
     public function testVerifyValidMessage()
     {
         $this->assertTrue(
-          $this->verifier->isSigned(
-            $this->signedMessage
-          )
+            $this->verifier->isSigned(
+                $this->signedMessage
+            )
         );
     }
 
     public function testVerifyValidMessageNoHeaders()
     {
         $this->assertTrue(
-          $this->verifier->isSigned(
-            $this->signedMessageNoHeaders
-          )
+            $this->verifier->isSigned(
+                $this->signedMessageNoHeaders
+            )
         );
         $this->assertTrue(
-          $this->verifier->isAuthorized(
-            $this->authorizedMessageNoHeaders
-          )
+            $this->verifier->isAuthorized(
+                $this->authorizedMessageNoHeaders
+            )
         );
     }
 
@@ -132,8 +132,8 @@ class VerifierHmacTest extends TestCase
         // $message = $this->validMessage->withoutHeader('Digest')
         //   ->withHeader('Digest', 'SHA-256=xxx');
         $this->assertFalse($this->verifier->isValidDigest(
-          $this->signedMessage->withoutHeader('Digest')
-            ->withHeader('Digest', 'SHA-256=xxx')
+            $this->signedMessage->withoutHeader('Digest')
+              ->withHeader('Digest', 'SHA-256=xxx')
         ));
     }
 
@@ -143,8 +143,8 @@ class VerifierHmacTest extends TestCase
           ->withHeader('Digest', 'SHA-255=xxx');
         $this->assertFalse($this->verifier->isValidDigest($message));
         $this->assertEquals(
-          "'SHA-255' in Digest header is not a valid algorithm",
-          $this->verifier->getStatus()[0]
+            "'SHA-255' in Digest header is not a valid algorithm",
+            $this->verifier->getStatus()[0]
         );
     }
 
@@ -154,8 +154,8 @@ class VerifierHmacTest extends TestCase
           ->withHeader('Digest', 'h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI=');
         $this->assertFalse($this->verifier->isValidDigest($message));
         $this->assertEquals(
-          "'h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI' in Digest header is not a valid algorithm",
-          $this->verifier->getStatus()[0]
+            "'h7gWacNDycTMI1vWH4Z3f3Wek1nNZS8px82bBQEEARI' in Digest header is not a valid algorithm",
+            $this->verifier->getStatus()[0]
         );
     }
 
@@ -174,7 +174,7 @@ class VerifierHmacTest extends TestCase
     {
         // $message = $this->signedMessage->withMethod('POST');
         $this->assertFalse($this->verifier->isSigned(
-          $this->signedMessage->withMethod('POST')
+            $this->signedMessage->withMethod('POST')
         ));
     }
 
@@ -217,13 +217,13 @@ class VerifierHmacTest extends TestCase
         $verifier = new Verifier($keyStore);
         $this->assertFalse($verifier->isSigned($this->signedMessage));
         $this->assertEquals(
-          "Cannot locate key for supplied keyId 'secret1'",
-          $verifier->getStatus()[0]
+            "Cannot locate key for supplied keyId 'secret1'",
+            $verifier->getStatus()[0]
         );
         $verifier->isSigned($this->signedMessage);
         $this->assertEquals(
-          1,
-          sizeof($verifier->getStatus())
+            1,
+            sizeof($verifier->getStatus())
         );
     }
 

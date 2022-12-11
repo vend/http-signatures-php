@@ -38,11 +38,11 @@ class Verification
                 $signatureLine = $message->getHeader('Signature')[0];
                 break;
             case 'authorization':
-            if (0 == sizeof($message->getHeader('Authorization'))) {
-                throw new HeaderException("Cannot locate header 'Authorization'");
-            } elseif (sizeof($message->getHeader('Authorization')) > 1) {
-                throw new HeaderException("Multiple headers named 'Authorization'");
-            }
+                if (0 == sizeof($message->getHeader('Authorization'))) {
+                    throw new HeaderException("Cannot locate header 'Authorization'");
+                } elseif (sizeof($message->getHeader('Authorization')) > 1) {
+                    throw new HeaderException("Multiple headers named 'Authorization'");
+                }
                 $authorizationType = explode(' ', $message->getHeader('Authorization')[0])[0];
                 if ('Signature' == $authorizationType) {
                     $signatureLine = substr($message->getHeader('Authorization')[0], strlen('Signature '));
@@ -55,7 +55,7 @@ class Verification
                 break;
         }
         $signatureParametersParser = new SignatureParametersParser(
-          $signatureLine
+            $signatureLine
         );
         $this->parameters = $signatureParametersParser->parse();
     }
@@ -69,15 +69,15 @@ class Verification
             $key = $this->key();
             switch ($key->getClass()) {
                 case 'secret':
-                  if (hash_equals(
-                    $this->expectedSignature()->string(),
-                    $this->providedSignature()
+                    if (hash_equals(
+                        $this->expectedSignature()->string(),
+                        $this->providedSignature()
                     )) {
-                      return true;
-                  } else {
-                      throw new SignatureException('Invalid signature', 1);
-                  }
-                  break;
+                        return true;
+                    } else {
+                        throw new SignatureException('Invalid signature', 1);
+                    }
+                    break;
                 case 'asymmetric':
                     $signedString = new SigningString(
                         $this->headerList(),
@@ -187,8 +187,6 @@ class Verification
     }
 
     /**
-     * @param $name
-     *
      * @return string|null
      */
     private function fetchHeader($name)
@@ -236,12 +234,12 @@ class Verification
     private function header()
     {
         switch ($this->header) {
-          case 'Signature':
-            return $this->fetchHeader('Signature');
-            break;
-          case 'Authorization':
-            return substr($authorization, strlen('Signature '));
-            break;
+            case 'Signature':
+                return $this->fetchHeader('Signature');
+                break;
+            case 'Authorization':
+                return substr($authorization, strlen('Signature '));
+                break;
         }
     }
 
@@ -256,9 +254,9 @@ class Verification
     public function getSigningString()
     {
         $signedString = new SigningString(
-          $this->headerList(),
-          $this->message
-      );
+            $this->headerList(),
+            $this->message
+        );
 
         return $signedString->string();
     }

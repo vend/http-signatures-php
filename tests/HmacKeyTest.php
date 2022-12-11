@@ -14,18 +14,18 @@ class HmacKeyTest extends TestCase
         $this->assertFalse(Key::isX509Certificate('ThisIsASecretKey'));
         $key = new Key('hmacsecret', 'ThisIsASecretKey');
         $this->assertEquals(
-          [
-            'hmacsecret',
-            'ThisIsASecretKey',
-            'ThisIsASecretKey',
-            'secret',
-          ],
-          [
-            $key->getId(),
-            $key->getVerifyingKey(),
-            $key->getSigningKey(),
-            $key->getClass(),
-          ]
+            [
+              'hmacsecret',
+              'ThisIsASecretKey',
+              'ThisIsASecretKey',
+              'secret',
+            ],
+            [
+              $key->getId(),
+              $key->getVerifyingKey(),
+              $key->getSigningKey(),
+              $key->getClass(),
+            ]
         );
     }
 }

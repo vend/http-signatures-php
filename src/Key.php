@@ -66,31 +66,31 @@ class Key
             } else {
                 $type = explode('\\', get_class($pkiKey))[3];
                 switch ($type) {
-                  case 'PrivateKey':
-                    if (!empty($privateKey)) {
-                        throw new KeyException('Multiple Private Keys Provided, only one signing key supported', 1);
-                    }
-                    if (!empty($secrets)) {
-                        throw new KeyException('Private Key and Secret provided, only one type of signing key supported', 1);
-                    }
-                    $fingerPrint = hash('sha256', $pkiKey->getPublicKey()->toString('PKCS8'));
-                    $privateKey = $pkiKey;
-                    $publicKeys[$fingerPrint] = $pkiKey->getPublicKey();
-                    break;
-                  case 'PublicKey':
-                    $fingerPrint = hash('sha256', $pkiKey->toString('PKCS8'));
-                    if (!empty($secrets)) {
-                        throw new KeyException('Public Key and Secret provided, only one type of verifying key supported', 1);
-                    } elseif (!empty($privateKey) && !array_key_exists($fingerPrint, $publicKeys)) {
-                        throw new KeyException("Public Key and Private Key don't seem to be related", 1);
-                    } else {
-                        $publicKeys[$fingerPrint] = $pkiKey;
-                    }
-                    break;
+                    case 'PrivateKey':
+                        if (!empty($privateKey)) {
+                            throw new KeyException('Multiple Private Keys Provided, only one signing key supported', 1);
+                        }
+                        if (!empty($secrets)) {
+                            throw new KeyException('Private Key and Secret provided, only one type of signing key supported', 1);
+                        }
+                        $fingerPrint = hash('sha256', $pkiKey->getPublicKey()->toString('PKCS8'));
+                        $privateKey = $pkiKey;
+                        $publicKeys[$fingerPrint] = $pkiKey->getPublicKey();
+                        break;
+                    case 'PublicKey':
+                        $fingerPrint = hash('sha256', $pkiKey->toString('PKCS8'));
+                        if (!empty($secrets)) {
+                            throw new KeyException('Public Key and Secret provided, only one type of verifying key supported', 1);
+                        } elseif (!empty($privateKey) && !array_key_exists($fingerPrint, $publicKeys)) {
+                            throw new KeyException("Public Key and Private Key don't seem to be related", 1);
+                        } else {
+                            $publicKeys[$fingerPrint] = $pkiKey;
+                        }
+                        break;
 
-                  default:
-                    throw new KeyException('Something went terribly wrong, not a secret and not PKI - should never happen', 1);
-                    break;
+                    default:
+                        throw new KeyException('Something went terribly wrong, not a secret and not PKI - should never happen', 1);
+                        break;
                 }
             }
         }
@@ -171,24 +171,24 @@ class Key
     public function getVerifyingKey($format = 'PKCS8')
     {
         switch ($this->getClass()) {
-        case 'asymmetric':
-            if (1 != sizeof($this->publicKeys)) {
-                throw new KeyException('More than one Verifying Key. Use getVerifyingKeys() instead', 1);
-            // TODO: Implement getVerifyingKeys and multiple key verification
+            case 'asymmetric':
+                if (1 != sizeof($this->publicKeys)) {
+                    throw new KeyException('More than one Verifying Key. Use getVerifyingKeys() instead', 1);
+                // TODO: Implement getVerifyingKeys and multiple key verification
                 // https://github.com/liamdennehy/http-signatures-php/issues/20
-            } else {
-                return str_replace("\r\n", "\n", current($this->publicKeys)->toString($format));
-            }
-            break;
-        case 'secret':
-          if (1 != sizeof($this->secrets)) {
-              throw new KeyException('More than one Secret Key. Use getVerifyingKeys() instead', 1);
-          } else {
-              return current($this->secrets);
-          }
-          // no break
-        default:
-            throw new KeyException("Unknown key class $this->class");
+                } else {
+                    return str_replace("\r\n", "\n", current($this->publicKeys)->toString($format));
+                }
+                break;
+            case 'secret':
+                if (1 != sizeof($this->secrets)) {
+                    throw new KeyException('More than one Secret Key. Use getVerifyingKeys() instead', 1);
+                } else {
+                    return current($this->secrets);
+                }
+                // no break
+            default:
+                throw new KeyException("Unknown key class $this->class");
         }
     }
 
@@ -202,22 +202,22 @@ class Key
     public function getSigningKey($format = 'PKCS8')
     {
         switch ($this->getClass()) {
-        case 'asymmetric':
-            if (!empty($this->privateKey)) {
-                return str_replace("\r\n", "\n", $this->privateKey->toString($format));
-            } else {
-                return null;
-            }
-            break;
-        case 'secret':
-            if (sizeof($this->secrets) > 1) {
-                throw new KeyException('Multiple Secrets in Key, use only one as input for signing');
-            } else {
-                return current($this->secrets);
-            }
-            // no break
-        default:
-            throw new KeyException("Unknown key class $this->class");
+            case 'asymmetric':
+                if (!empty($this->privateKey)) {
+                    return str_replace("\r\n", "\n", $this->privateKey->toString($format));
+                } else {
+                    return null;
+                }
+                break;
+            case 'secret':
+                if (sizeof($this->secrets) > 1) {
+                    throw new KeyException('Multiple Secrets in Key, use only one as input for signing');
+                } else {
+                    return current($this->secrets);
+                }
+                // no break
+            default:
+                throw new KeyException("Unknown key class $this->class");
         }
     }
 
@@ -236,17 +236,17 @@ class Key
     public function getType()
     {
         switch ($this->getClass()) {
-          case 'secret':
-            return 'hmac';
-            break;
+            case 'secret':
+                return 'hmac';
+                break;
 
-          case 'asymmetric':
-            return strtolower($this->algorithm);
-            break;
+            case 'asymmetric':
+                return strtolower($this->algorithm);
+                break;
 
-          default:
-            throw new KeyException("Unknown key class '{$this->class}' fetching algorithm", 1);
-            break;
+            default:
+                throw new KeyException("Unknown key class '{$this->class}' fetching algorithm", 1);
+                break;
         }
     }
 
@@ -284,7 +284,7 @@ class Key
         Key::hasPublicKey($object) &&
         !Key::hasPrivateKey($object) &&
         !Key::isX509Certificate($object)
-      ;
+        ;
     }
 
     public static function isPrivateKey($object)
@@ -292,7 +292,7 @@ class Key
         return
         Key::hasPrivateKey($object) &&
         !Key::isPublicKey($object)
-      ;
+        ;
     }
 
     public static function hasPKIKey($item)
@@ -300,7 +300,7 @@ class Key
         return
         Key::hasPublicKey($item) ||
         Key::hasPrivateKey($item)
-      ;
+        ;
     }
 
     public static function hasPublicKey($candidate)
@@ -357,6 +357,6 @@ class Key
         return
         Key::isPrivateKey($item) ||
         Key::isPublicKey($item)
-      ;
+        ;
     }
 }

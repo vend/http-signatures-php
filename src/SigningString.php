@@ -38,9 +38,9 @@ class SigningString
             return [];
         } else {
             return array_map(
-              [$this, 'line'],
-              $this->headerList->names
-          );
+                [$this, 'line'],
+                $this->headerList->names
+            );
         }
     }
 

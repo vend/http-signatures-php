@@ -62,7 +62,7 @@ class Context
             $this->signingKey(),
             $this->algorithm(),
             $this->headerList()
-      );
+        );
     }
 
     /**

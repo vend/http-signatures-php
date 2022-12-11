@@ -9,8 +9,8 @@ use PHPUnit\Framework\TestCase;
 
 class VerifierTest extends TestCase
 {
-    const DATE = 'Fri, 01 Aug 2014 13:44:32 -0700';
-    const DATE_DIFFERENT = 'Fri, 01 Aug 2014 13:44:33 -0700';
+    public const DATE = 'Fri, 01 Aug 2014 13:44:32 -0700';
+    public const DATE_DIFFERENT = 'Fri, 01 Aug 2014 13:44:33 -0700';
 
     /**
      * @var Verifier
@@ -108,13 +108,13 @@ class VerifierTest extends TestCase
     {
         $this->assertTrue($this->verifier->isSigned($this->signedMessage));
         $this->assertEquals(
-          "Message SigningString: 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
-          $this->verifier->getStatus()[0]
+            "Message SigningString: 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
+            $this->verifier->getStatus()[0]
         );
         $this->verifier->isSigned($this->signedMessage);
         $this->assertEquals(
-          1,
-          sizeof($this->verifier->getStatus())
+            1,
+            sizeof($this->verifier->getStatus())
         );
     }
 
@@ -122,13 +122,13 @@ class VerifierTest extends TestCase
     {
         $this->assertTrue($this->verifier->isAuthorized($this->authorizedMessage));
         $this->assertEquals(
-          "Message SigningString: 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
-          $this->verifier->getStatus()[0]
+            "Message SigningString: 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
+            $this->verifier->getStatus()[0]
         );
         $this->verifier->isAuthorized($this->authorizedMessage);
         $this->assertEquals(
-          1,
-          sizeof($this->verifier->getStatus())
+            1,
+            sizeof($this->verifier->getStatus())
         );
     }
 
@@ -151,33 +151,33 @@ class VerifierTest extends TestCase
     public function testRejectOnlySignatureHeaderAsAuthorized()
     {
         $this->assertFalse(
-          $this->verifier->isAuthorized($this->signedMessage)
+            $this->verifier->isAuthorized($this->signedMessage)
         );
         $this->assertEquals(
-          'Authorization header not found',
-          $this->verifier->getStatus()[0]
+            'Authorization header not found',
+            $this->verifier->getStatus()[0]
         );
         $this->verifier->isAuthorized($this->signedMessage);
         $this->assertEquals(
-          1,
-          sizeof($this->verifier->getStatus())
+            1,
+            sizeof($this->verifier->getStatus())
         );
     }
 
     public function testRejectOnlyAuthorizationHeaderAsSigned()
     {
         $this->assertFalse(
-        $this->verifier->isSigned($this->authorizedMessage)
-      );
+            $this->verifier->isSigned($this->authorizedMessage)
+        );
         $this->assertEquals(
-        'Signature header malformed',
-        $this->verifier->getStatus()[0]
-      );
+            'Signature header malformed',
+            $this->verifier->getStatus()[0]
+        );
         $this->verifier->isSigned($this->authorizedMessage);
         $this->assertEquals(
-        1,
-        sizeof($this->verifier->getStatus())
-      );
+            1,
+            sizeof($this->verifier->getStatus())
+        );
     }
 
     public function testRejectTamperedRequestMethod()
@@ -185,13 +185,13 @@ class VerifierTest extends TestCase
         $message = $this->signedMessage->withMethod('POST');
         $this->assertFalse($this->verifier->isSigned($message));
         $this->assertEquals(
-          'Invalid signature',
-          $this->verifier->getStatus()[0]
+            'Invalid signature',
+            $this->verifier->getStatus()[0]
         );
         $this->verifier->isSigned($message);
         $this->assertEquals(
-          1,
-          sizeof($this->verifier->getStatus())
+            1,
+            sizeof($this->verifier->getStatus())
         );
     }
 
@@ -200,8 +200,8 @@ class VerifierTest extends TestCase
         $message = $this->signedMessage->withHeader('Date', self::DATE_DIFFERENT);
         $this->assertFalse($this->verifier->isSigned($message));
         $this->assertEquals(
-          'Invalid signature',
-          $this->verifier->getStatus()[0]
+            'Invalid signature',
+            $this->verifier->getStatus()[0]
         );
     }
 
@@ -213,8 +213,8 @@ class VerifierTest extends TestCase
         );
         $this->assertFalse($this->verifier->isSigned($message));
         $this->assertEquals(
-          'Invalid signature',
-          $this->verifier->getStatus()[0]
+            'Invalid signature',
+            $this->verifier->getStatus()[0]
         );
     }
 
@@ -223,13 +223,13 @@ class VerifierTest extends TestCase
         $message = $this->signedMessage->withoutHeader('Signature');
         $this->assertFalse($this->verifier->isSigned($message));
         $this->assertEquals(
-          'Signature header not found',
-          $this->verifier->getStatus()[0]
+            'Signature header not found',
+            $this->verifier->getStatus()[0]
         );
         $this->verifier->isSigned($message);
         $this->assertEquals(
-          1,
-          sizeof($this->verifier->getStatus())
+            1,
+            sizeof($this->verifier->getStatus())
         );
     }
 
@@ -238,13 +238,13 @@ class VerifierTest extends TestCase
         $message = $this->signedMessage->withHeader('Signature', 'not="a",valid="signature"');
         $this->assertFalse($this->verifier->isSigned($message));
         $this->assertEquals(
-          'Signature header malformed',
-          $this->verifier->getStatus()[0]
+            'Signature header malformed',
+            $this->verifier->getStatus()[0]
         );
         $this->verifier->isSigned($message);
         $this->assertEquals(
-          1,
-          sizeof($this->verifier->getStatus())
+            1,
+            sizeof($this->verifier->getStatus())
         );
     }
 
@@ -253,8 +253,8 @@ class VerifierTest extends TestCase
         $message = $this->signedMessage->withHeader('Signature', 'keyId="aa",algorithm="bb"');
         $this->assertFalse($this->verifier->isSigned($message));
         $this->assertEquals(
-          'Signature header malformed',
-          $this->verifier->getStatus()[0]
+            'Signature header malformed',
+            $this->verifier->getStatus()[0]
         );
     }
 
@@ -264,13 +264,13 @@ class VerifierTest extends TestCase
         $verifier = new Verifier($keyStore);
         $this->assertFalse($verifier->isSigned($this->signedMessage));
         $this->assertEquals(
-          "Cannot locate key for supplied keyId 'pda'",
-          $verifier->getStatus()[0]
+            "Cannot locate key for supplied keyId 'pda'",
+            $verifier->getStatus()[0]
         );
         $verifier->isSigned($this->signedMessage);
         $this->assertEquals(
-          1,
-          sizeof($verifier->getStatus())
+            1,
+            sizeof($verifier->getStatus())
         );
     }
 
@@ -279,8 +279,8 @@ class VerifierTest extends TestCase
         $message = $this->signedMessage->withoutHeader('Date');
         $this->assertFalse($this->verifier->isSigned($message));
         $this->assertEquals(
-          "Header 'date' not in message",
-          $this->verifier->getStatus()[0]
+            "Header 'date' not in message",
+            $this->verifier->getStatus()[0]
         );
     }
 
@@ -288,8 +288,8 @@ class VerifierTest extends TestCase
     {
         $this->assertTrue($this->verifier->isSigned($this->signedMessage));
         $this->assertEquals(
-        "Message SigningString: 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
-        $this->verifier->getStatus()[0]
-      );
+            "Message SigningString: 'KHJlcXVlc3QtdGFyZ2V0KTogZ2V0IC9wYXRoP3F1ZXJ5PTEyMwpkYXRlOiBGcmksIDAxIEF1ZyAyMDE0IDEzOjQ0OjMyIC0wNzAw'",
+            $this->verifier->getStatus()[0]
+        );
     }
 }

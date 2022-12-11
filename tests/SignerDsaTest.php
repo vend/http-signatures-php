@@ -33,9 +33,9 @@ class SignerDsaTest extends TestCase
             'headers' => ['(request-target)', 'date'],
         ]);
         $this->message = new Request(
-          'GET',
-          '/path?query=123',
-          ['date' => 'today', 'accept' => 'llamas']
+            'GET',
+            '/path?query=123',
+            ['date' => 'today', 'accept' => 'llamas']
         );
     }
 
@@ -58,8 +58,8 @@ class SignerDsaTest extends TestCase
     public function testGetSigningString()
     {
         $this->assertEquals(
-          "(request-target): get /path?query=123\ndate: today",
-          $this->sha256context->signer()->getSigningString($this->message)
+            "(request-target): get /path?query=123\ndate: today",
+            $this->sha256context->signer()->getSigningString($this->message)
         );
     }
 

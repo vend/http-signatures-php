@@ -41,35 +41,35 @@ class Verifier
             // TODO: Match at least one header
             switch (get_class($e)) {
                 case 'HttpSignatures\HeaderException':
-                  $this->status[] = 'Signature header not found';
+                    $this->status[] = 'Signature header not found';
 
-                  return false;
-                  break;
+                    return false;
+                    break;
                 case 'HttpSignatures\SignatureParseException':
-                  $this->status[] = 'Signature header malformed';
+                    $this->status[] = 'Signature header malformed';
 
-                  return false;
-                  break;
+                    return false;
+                    break;
                 case 'HttpSignatures\SignatureException':
-                  $this->status[] = $e->getMessage();
+                    $this->status[] = $e->getMessage();
 
-                  return false;
-                  break;
+                    return false;
+                    break;
                 case 'HttpSignatures\SignedHeaderNotPresentException':
-                  $this->status[] = $e->getMessage();
+                    $this->status[] = $e->getMessage();
 
-                  return false;
-                  break;
+                    return false;
+                    break;
                 case 'HttpSignatures\KeyStoreException':
-                  $this->status[] = $e->getMessage();
+                    $this->status[] = $e->getMessage();
 
-                  return false;
-                  break;
+                    return false;
+                    break;
                 default:
-                  $this->status[] = 'Unknown exception '.get_class($e).': '.$e->getMessage();
-                  throw $e;
-                  break;
-                }
+                    $this->status[] = 'Unknown exception '.get_class($e).': '.$e->getMessage();
+                    throw $e;
+                    break;
+            }
         }
     }
 
@@ -94,20 +94,20 @@ class Verifier
             // TODO: Match at least one header
             switch (get_class($e)) {
                 case 'HttpSignatures\HeaderException':
-                  $this->status[] = 'Authorization header not found';
+                    $this->status[] = 'Authorization header not found';
 
-                  return false;
-                  break;
+                    return false;
+                    break;
                 case 'HttpSignatures\SignatureParseException':
-                  $this->status[] = 'Authorization header malformed';
+                    $this->status[] = 'Authorization header malformed';
 
-                  return false;
-                  break;
+                    return false;
+                    break;
                 default:
-                  $this->status[] = 'Unknown exception '.get_class($e).': '.$e->getMessage();
-                  throw $e;
-                  break;
-                }
+                    $this->status[] = 'Unknown exception '.get_class($e).': '.$e->getMessage();
+                    throw $e;
+                    break;
+            }
         }
     }
 

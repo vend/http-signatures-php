@@ -15,7 +15,8 @@ class SignatureParameters
         private $algorithm,
         private $headerList,
         private $signature,
-    ) {}
+    ) {
+    }
 
     /**
      * @return string

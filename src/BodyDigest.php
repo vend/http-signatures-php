@@ -5,7 +5,7 @@ namespace HttpSignatures;
 class BodyDigest
 {
     /** @var string */
-    const validHashes =
+    public const validHashes =
       'sha sha1 sha256 sha512';
 
     /** @var string */

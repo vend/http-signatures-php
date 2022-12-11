@@ -17,16 +17,14 @@ class HeaderList
             $this->headerListSpecified = false;
         } else {
             $this->names = array_map(
-              [$this, 'normalize'],
-              $names
-          );
+                [$this, 'normalize'],
+                $names
+            );
             $this->headerListSpecified = $headerListSpecified;
         }
     }
 
     /**
-     * @param $string
-     *
      * @return HeaderList
      */
     public static function fromString($string)
@@ -51,8 +49,6 @@ class HeaderList
     }
 
     /**
-     * @param $name
-     *
      * @return string
      */
     private function normalize($name)
