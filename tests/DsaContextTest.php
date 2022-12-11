@@ -10,7 +10,7 @@ class DsaContextTest extends TestCase
 {
     private $context;
 
-    public function setUp()
+    public function setUp(): void
     {
         $dsaKeyFile = __DIR__.'/keys/DSA.key';
         $this->dsaPrivateKey = file_get_contents($dsaKeyFile);

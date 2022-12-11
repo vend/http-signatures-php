@@ -10,7 +10,7 @@ class HmacContextTest extends TestCase
 {
     private $context;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->noDigestContext = new Context([
             'keys' => ['pda' => 'secret'],

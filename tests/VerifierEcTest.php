@@ -22,7 +22,7 @@ class VerifierEcTest extends TestCase
      */
     private $message;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->setUpEcVerifier();
         $baseMessage = new Request('GET', '/path?query=123', [

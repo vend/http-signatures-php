@@ -23,7 +23,7 @@ class VerifierRsaTest extends TestCase
      */
     private $message;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->setUpRsaVerifier();
         $baseMessage = new Request('GET', '/path?query=123', [

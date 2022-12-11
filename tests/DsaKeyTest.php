@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class DsaKeyTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
     }
 

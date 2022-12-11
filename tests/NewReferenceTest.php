@@ -124,7 +124,7 @@ content-length: 18';
         $this->assertTrue(true);
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->referenceMessage = new Request(
             self::referenceMethod,

@@ -32,7 +32,7 @@ class VerifierTest extends TestCase
      */
     private $signedAndAuthorizedMessage;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->setUpVerifier();
         $this->setUpSignedMessage();

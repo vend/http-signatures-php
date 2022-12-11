@@ -22,7 +22,7 @@ class VerifierDsaTest extends TestCase
      */
     private $message;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->setUpDsaVerifier();
         $baseMessage = new Request('GET', '/path?query=123', [

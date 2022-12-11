@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class SigningStringTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->message = new Request(
           'GET',

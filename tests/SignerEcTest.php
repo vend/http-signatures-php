@@ -10,7 +10,7 @@ class SignerEcTest extends TestCase
 {
     private $context;
 
-    public function setUp()
+    public function setUp(): void
     {
         $p256KeyFile = __DIR__.'/keys/prime256v1.named.key';
         $this->p256PrivateKey = file_get_contents($p256KeyFile);
