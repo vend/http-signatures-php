@@ -227,23 +227,6 @@ class Verification
     }
 
     /**
-     * @return string
-     *
-     * @throws Exception
-     */
-    private function header()
-    {
-        switch ($this->header) {
-            case 'Signature':
-                return $this->fetchHeader('Signature');
-                break;
-            case 'Authorization':
-                return substr($authorization, strlen('Signature '));
-                break;
-        }
-    }
-
-    /**
      * @return HeaderList
      */
     private function headerList()

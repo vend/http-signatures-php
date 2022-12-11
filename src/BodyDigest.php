@@ -2,6 +2,8 @@
 
 namespace HttpSignatures;
 
+use Psr\Http\Message\RequestInterface;
+
 class BodyDigest
 {
     /** @var string */

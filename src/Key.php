@@ -58,7 +58,7 @@ class Key
             if (empty($pkiKey)) {
                 if (0 != strpos($key, 'BEGIN')) {
                     throw new KeyException('Input looks like PEM but key not understood using phpseclib3', 1);
-                } elseif (!empty($publicKeys) || !empty($privateKsy)) {
+                } elseif (!empty($publicKeys) || !empty($privateKey)) {
                     throw new KeyException('PKI Key(s) and Secret provided, only one type of key supported', 1);
                 } else {
                     $secrets[hash('sha256', $key)] = $key;
@@ -126,20 +126,15 @@ class Key
     /**
      * Retrieves public key resource from a input string.
      *
-     * @param string $object PEM-format Public Key or file path to same
+     * @param string $candidate PEM-format Public Key or file path to same
      *
-     * @return resource|false
+     * @return resource|null
      */
     private static function getPublicKey($candidate)
     {
         try {
             $key = PublicKeyLoader::load($candidate);
         } catch (\Exception $e) {
-            return null;
-        }
-        if (!empty($key)) {
-            return $publicKey;
-        } else {
             return null;
         }
     }

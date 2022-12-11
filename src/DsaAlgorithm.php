@@ -33,9 +33,9 @@ class DsaAlgorithm implements AlgorithmInterface
      *
      * @throws \HttpSignatures\AlgorithmException
      */
-    public function sign($signingKey, $data)
+    public function sign($key, $data)
     {
-        $dsa = PublicKeyLoader::load($signingKey)
+        $dsa = PublicKeyLoader::load($key)
         ->withHash($this->digestName);
         $signature = $dsa->sign($data);
 

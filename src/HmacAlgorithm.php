@@ -29,8 +29,8 @@ class HmacAlgorithm implements AlgorithmInterface
      *
      * @return string
      */
-    public function sign($secret, $data)
+    public function sign($key, $data)
     {
-        return hash_hmac($this->digestName, $data, $secret, true);
+        return hash_hmac($this->digestName, $data, $key, true);
     }
 }

@@ -32,9 +32,9 @@ class RsaAlgorithm implements AlgorithmInterface
      *
      * @return string
      */
-    public function sign($signingKey, $data)
+    public function sign($key, $data)
     {
-        $rsa = PublicKeyLoader::load($signingKey)
+        $rsa = PublicKeyLoader::load($key)
           ->withHash($this->digestName)
           ->withPadding(RSA::SIGNATURE_PKCS1);
         $signature = $rsa->sign($data);

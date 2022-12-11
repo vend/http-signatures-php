@@ -33,9 +33,9 @@ class EcAlgorithm implements AlgorithmInterface
      *
      * @throws \HttpSignatures\AlgorithmException
      */
-    public function sign($signingKey, $data)
+    public function sign($key, $data)
     {
-        $ec = PublicKeyLoader::load($signingKey)
+        $ec = PublicKeyLoader::load($key)
             ->withHash($this->digestName);
         $signature = $ec->sign($data);
 
